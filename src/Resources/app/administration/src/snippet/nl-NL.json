@@ -1,0 +1,18 @@
+{
+    "paazl-checkout": {
+        "general": {
+            "api": {
+                "messages": {
+                    "success": {
+                        "title": "Succes",
+                        "message": "Inloggegevens zijn geldig."
+                    },
+                    "error": {
+                        "title": "Mislukt",
+                        "message": "Inloggegevens zijn ongeldig."
+                    }
+                }
+            }
+        }
+    }
+}

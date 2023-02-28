@@ -1,0 +1,21 @@
+{% sw_extends '@Storefront/storefront/component/shipping/shipping-method.html.twig' %}
+
+{% block component_shipping_method_field %}
+    {% if (config('PaazlCheckoutWidget.config.hideNonPaazlShippingOptions') == 'yes')  %}
+        {% if shipping.name == 'Paazl' %}
+            {{ parent() }}
+        {% endif %}
+    {% else %}
+        {{ parent() }}
+    {% endif %}
+{% endblock %}
+
+{% block component_shipping_method_control %}
+    {% if (config('PaazlCheckoutWidget.config.hideNonPaazlShippingOptions') == 'yes')  %}
+        <div class="paazl-hide-radio">
+            {{ parent() }}
+        </div>
+    {% else %}
+        {{ parent() }}
+    {% endif %}
+{% endblock %}

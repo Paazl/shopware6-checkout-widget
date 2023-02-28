@@ -1,0 +1,39 @@
+{% sw_extends '@Storefront/storefront/page/checkout/finish/finish-address.html.twig' %}
+
+{% block page_checkout_finish_address_billing_data %}
+    {% if order.customfields.paazlData.pickupLocation %}
+        {% sw_include '@Storefront/storefront/component/address/address.html.twig' with {'address': context.customer.defaultBillingAddress} %}
+    {% else %}
+        {% sw_include '@Storefront/storefront/component/address/address.html.twig' with {'address': billingAddress} %}
+    {% endif %}
+{% endblock %}
+
+{% block page_checkout_finish_address_shipping %}
+    <div class="col-sm-6">
+        <div class="card checkout-card">
+            <div class="card-body">
+                {% block page_checkout_finish_address_shipping_title %}
+                    <div class="card-title">
+                        {{ "checkout.shippingAddressHeader"|trans|sw_sanitize }}
+                    </div>
+                {% endblock %}
+
+                {% block page_checkout_finish_address_shipping_data %}
+                    <div class="finish-address-shipping">
+                        {% if order.customfields.paazlData.pickupLocation %}
+                        <p>
+                            {{ order.customfields.paazlData.pickupLocation.name }}<br/>
+                            {{ order.customfields.paazlData.pickupLocation.address['street'] }} {{ order.customfields.paazlData.pickupLocation.address['streetNumber'] }}<br/>
+                            {{ order.customfields.paazlData.pickupLocation.address['postalCode'] }}<br/>
+                            {{ order.customfields.paazlData.pickupLocation.address['city'] }}<br/>
+                            {{ order.customfields.paazlData.pickupLocation.address['country'] }}
+                        </p>
+                        {% else %}
+                            {% sw_include '@Storefront/storefront/component/address/address.html.twig' with {'address': shippingAddress} %}
+                        {% endif %}
+                    </div>
+                {% endblock %}
+            </div>
+        </div>
+    </div>
+{% endblock %}

@@ -1,0 +1,12 @@
+{
+    "Paazl": {
+        "title": "Paazl",
+        "description": "Paazl Module",
+        "tab":{
+            "title": "Paazl Checkout Widget"
+        },
+        "fields": {
+            "numberOfProcessingDays": "Number Of Processing Days"
+        }
+    }
+}

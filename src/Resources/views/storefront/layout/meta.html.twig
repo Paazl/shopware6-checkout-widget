@@ -1,0 +1,13 @@
+{% sw_extends '@Storefront/storefront/layout/meta.html.twig' %}
+
+{% block layout_head_title %}
+
+    {{ parent() }}
+
+    {% if config('PaazlCheckoutWidget.config.environment') == "staging" %}
+        <script type="text/javascript" id="paazl-script-loader" src="https://widget-acc.paazl.com/v1/checkout.js"></script>
+    {% else %}
+        <script type="text/javascript" id="paazl-script-loader" src="https://widget.paazl.com/v1/checkout.js"></script>
+    {% endif %}
+
+{% endblock %}

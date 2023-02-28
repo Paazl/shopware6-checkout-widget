@@ -1,0 +1,63 @@
+{% block component_shipping_method_paazl_div %}
+    <div id="paazl-checkout" data-orderNumber="{{ page.paazlConfig['paazlOrderNumber'] }}"></div>
+    <script type="text/javascript">
+        PaazlCheckout.init({
+            mountElementId: "paazl-checkout",
+            apiKey: "{{ config('PaazlCheckoutWidget.config.apiKey') }}",
+            token: "{{ page.paazlConfig['token'] }}",
+            loadPaazlBasedData: true,
+            loadCarrierBasedData: true,
+            availableTabs: {{ config('PaazlCheckoutWidget.config.availableTabs')|json_encode|raw }},
+            defaultTab: "{{ config('PaazlCheckoutWidget.config.defaultTab') }}",
+            headerTabType: "{{ config('PaazlCheckoutWidget.config.headerTabType')}}",
+            style: "{{ config('PaazlCheckoutWidget.config.style') }}",
+            nominatedDateEnabled: "{{ config('PaazlCheckoutWidget.config.nominatedDateEnabled') }}",
+            consigneeCountryCode: "{{ page.paazlConfig['consigneeCountryCode'] }}",
+            consigneePostalCode: "{{ page.paazlConfig['consigneePostalCode'] }}",
+            deliveryType: "{{ page.paazlConfig['deliveryType'] }}",
+            numberOfProcessingDays: {{ page.paazlConfig['numberOfProcessingDays'] }},
+            deliveryDateOptions: {
+                startDate: "{{ page.paazlConfig['deliveryDateOptions']['startDate'] }}",
+                numberOfDays: {{ config('PaazlCheckoutWidget.config.numberOfDays') }},
+            },
+            language: "{{ page.paazlConfig['language'] }}",
+            currency: "{{ page.paazlConfig['currency'] }}",
+            isPricingEnabled: "{{ config('PaazlCheckoutWidget.config.isPricingEnabled') }}",
+            isShowAsExtraCost: "{{ config('PaazlCheckoutWidget.config.isShowAsExtraCost') }}",
+            deliveryRangeFormat: "{{ config('PaazlCheckoutWidget.config.deliveryRangeFormat') }}",
+            deliveryOptionDateFormat: "{{ config('PaazlCheckoutWidget.config.deliveryOptionDateFormat') }}",
+            deliveryEstimateDateFormat: "{{ config('PaazlCheckoutWidget.config.deliveryEstimateDateFormat') }}",
+            pickupOptionDateFormat: "{{ config('PaazlCheckoutWidget.config.pickupOptionDateFormat') }}",
+            pickupEstimateDateFormat: "{{ config('PaazlCheckoutWidget.config.pickupEstimateDateFormat') }}",
+            sortingModel: {
+                orderBy: "{{ config('PaazlCheckoutWidget.config.orderBy') }}",
+                sortOrder: "{{ config('PaazlCheckoutWidget.config.sortOrder') }}",
+            },
+            shipmentParameters: {
+                totalWeight: {{ page.paazlConfig['shipmentParameters']['totalWeight'] }},
+                totalPrice: {{ page.paazlConfig['shipmentParameters']['totalPrice'] }},
+                numberOfGoods: {{ page.paazlConfig['shipmentParameters']['numberOfGoods'] }},
+                goods: {{ page.paazlConfig['shipmentParameters']['goods']|json_encode|raw }}
+            },
+            shippingOptionsLimit: {{ config('PaazlCheckoutWidget.config.shippingOptionsLimit') }},
+            pickupLocationsPageLimit: {{ config('PaazlCheckoutWidget.config.pickupLocationsPageLimit') }},
+            pickupLocationsLimit: {{ config('PaazlCheckoutWidget.config.pickupLocationsLimit') }},
+            initialPickupLocations: {{ config('PaazlCheckoutWidget.config.initialPickupLocations') }}
+        });
+        setInterval(function () {
+            setTimeout(function(){
+                if (document.querySelectorAll('.paazl button').length >0) {
+                        document.querySelectorAll('.paazl button').forEach( x=> x.setAttribute('type','button'));
+                    }
+                }, 2500)
+        }, 1000);
+    </script>
+    {% if config('PaazlCheckoutWidget.config.customCss') %}
+    <style>
+        :root {
+            {{ config('PaazlCheckoutWidget.config.customCss') }}
+        }
+    </style>
+    {% endif %}
+    {{ shippingOptionsLimit }}
+{% endblock %}

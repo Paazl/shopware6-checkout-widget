@@ -1,0 +1,14 @@
+{% sw_extends '@Storefront/storefront/page/checkout/summary/summary-shipping.html.twig' %}
+
+{% block page_checkout_summary_shipping_label %}
+
+    <dt class="col-7 checkout-aside-summary-label">
+        {% if delivery.shippingMethod.customFields is not null and delivery.shippingMethod.customFields['paazlTitle'] is not null %}
+            {{ "checkout.summaryShipping"|trans|sw_sanitize }} ({{ delivery.shippingMethod.customFields.paazlData.shippingOption.name }})
+        {% elseif summary.customFields is not null and summary.customFields['paazlTitle'] is not null %}
+            {{ "checkout.summaryShipping"|trans|sw_sanitize }} ({{ summary.customFields.paazlData.shippingOption.name }})
+        {% else %}
+            {{ "checkout.summaryShipping"|trans|sw_sanitize }}
+        {% endif %}
+    </dt>
+{% endblock %}

@@ -1,0 +1,27 @@
+{% sw_extends '@Storefront/storefront/component/checkout/offcanvas-cart-summary.html.twig' %}
+{% block component_offcanvas_summary_content_info %}
+
+    <div class="row offcanvas-shipping-info">
+        <span class="col-7 shipping-label shipping-cost">
+        <strong>{{ "checkout.summaryShipping"|trans|sw_sanitize }}</strong>
+            {% if loop.first %}
+                {% if activeShipping.shippingMethod.translated.name != 'Paazl'%}
+                <small {% if page.shippingMethods|length %}class="js-toggle-shipping-selection"{% endif %}>
+                    ({{ activeShipping.shippingMethod.translated.name }})
+                </small>
+                {% endif %}
+                {% if activeShipping.shippingMethod.translated.name == 'Paazl'%}
+                    {% set delivery = page.cart.deliveries.first %}
+                    {% if delivery.shippingMethod.customFields is not null and delivery.shippingMethod.customFields['paazlTitle'] is not null %}
+                        <small>({{ delivery.shippingMethod.customFields['paazlTitle'] }})</small>
+                    {% else %}
+                        <small>({{ config('PaazlCheckoutWidget.config.shippingName') }})</small>
+                    {% endif %}
+                {% endif %}
+            {% endif %}
+        </span>
+        <span class="col-5 pb-2 shipping-value shipping-cost">
+            <strong>+ {{ activeShipping.shippingCosts.totalPrice|currency }}</strong>
+        </span>
+    </div>
+{% endblock %}

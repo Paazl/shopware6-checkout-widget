@@ -1,0 +1,13 @@
+{% sw_extends '@Storefront/storefront/page/checkout/finish/finish-details.html.twig' %}
+
+{% block page_checkout_finish_order_dispatch_method %}
+    <p>
+        <strong>{{ "checkout.finishInfoShipping"|trans|sw_sanitize }}</strong>
+        {% if page.order.deliveries.first.shippingMethod.translated.name != 'Paazl'%}
+            {{ page.order.deliveries.first.shippingMethod.translated.name }}
+        {% endif %}
+        {% if page.order.customfields.paazlTitle %}
+            ({{ page.order.customfields.paazlData.shippingOption.name }})
+        {% endif %}
+    </p>
+{% endblock %}

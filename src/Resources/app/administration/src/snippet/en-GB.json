@@ -1,0 +1,18 @@
+{
+    "paazl-checkout": {
+        "general": {
+            "api": {
+                "messages": {
+                    "success": {
+                        "title": "Success",
+                        "message": "Credentials are valid."
+                    },
+                    "error": {
+                        "title": "Failed",
+                        "message": "Credentials are invalid."
+                    }
+                }
+            }
+        }
+    }
+}

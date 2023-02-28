@@ -1,0 +1,17 @@
+{% sw_extends '@Storefront/storefront/component/shipping/shipping-fields.html.twig' %}
+
+{% block component_shipping_method %}
+    {{ parent() }}
+
+    {% block component_shipping_method_paazl %}
+        {% if context.shippingMethod %}
+            {% if context.shippingMethod.name == constant('PaazlCheckoutWidget\\PaazlCheckoutWidget::SHIPPING_METHOD_NAME') %}
+
+                {% sw_include '@Storefront/storefront/paazl/paazl-payload.html.twig' with {
+                    'config': config,
+                } %}
+
+            {% endif %}
+        {% endif %}
+    {% endblock %}
+{% endblock %}
