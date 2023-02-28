@@ -1,0 +1,11 @@
+{% block sw_order_delivery_metadata_shipping_method %}
+    <dt>{{ $tc('sw-order.detailDeliveries.labelShippingMethod') }}</dt>
+    <dd>
+        {{ delivery.shippingMethod.translated.name }}
+        <div v-if="order.customFields">
+            <template v-if="order.customFields.paazlTitle">
+                {{ '[' }} {{ order.customFields.paazlTitle }} {{ ']' }}
+            </template>
+        </div>
+    </dd>
+{% endblock %}

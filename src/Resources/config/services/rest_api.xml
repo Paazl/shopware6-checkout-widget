@@ -1,0 +1,35 @@
+<?xml version="1.0" ?>
+
+<container xmlns="http://symfony.com/schema/dic/services"
+           xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+           xsi:schemaLocation="http://symfony.com/schema/dic/services https://symfony.com/schema/dic/services/services-1.0.xsd">
+
+    <services>
+        <service id="PaazlCheckoutWidget\RestApi\PaazlClient" lazy="true">
+            <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService"/>
+            <argument type="service" id="session"/>
+            <argument type="service" id="language.repository"/>
+            <argument type="service" id="Shopware\Core\Checkout\Cart\SalesChannel\CartService"/>
+            <argument type="service" id="country.repository"/>
+            <argument type="service" id="order.repository"/>
+            <argument type="service" id="Shopware\Core\Checkout\Cart\Delivery\DeliveryBuilder"/>
+            <argument type="service" id="Shopware\Core\Checkout\Cart\Delivery\DeliveryCalculator"/>
+            <argument type="service" id="PaazlCheckoutWidget\Service\Logger\PaazlLogger"/>
+            <argument type="service" id="PaazlCheckoutWidget\Service\PaazlConfiguration"/>
+            <argument type="service" id="PaazlCheckoutWidget\Model\AddressParser"/>
+            <argument type="service" id="Shopware\Core\Checkout\Cart\CartPersister"/>
+            <argument type="service" id="PaazlCheckoutWidget\Service\CartPaazlTokenService"/>
+            <argument type="service" id="PaazlCheckoutWidget\Components\Logger" />
+        </service>
+
+        <!--Log Entry-->
+        <service id="PaazlCheckoutWidget\Service\Logger\PaazlLogger">
+            <argument type="service" id="log_entry.repository"/>
+        </service>
+        <service id="PaazlCheckoutWidget\Components\Logger" class="Monolog\Logger">
+            <factory service="Shopware\Core\Framework\Log\LoggerFactory" method="createRotating"/>
+            <argument type="string">Paazl</argument>
+        </service>
+        
+    </services>
+</container>

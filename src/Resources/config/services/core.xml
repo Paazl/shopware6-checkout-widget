@@ -1,0 +1,44 @@
+<?xml version="1.0" ?>
+
+<container xmlns="http://symfony.com/schema/dic/services"
+           xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+           xsi:schemaLocation="http://symfony.com/schema/dic/services https://symfony.com/schema/dic/services/services-1.0.xsd">
+
+    <services>
+        <service id="PaazlCheckoutWidget\Core\Checkout\Cart\Delivery\DeliveryProcessor">
+            <tag name="shopware.cart.processor"  priority="-6000"/>
+
+            <argument type="service" id="Shopware\Core\Checkout\Cart\Delivery\DeliveryBuilder"/>
+            <argument type="service" id="Shopware\Core\Checkout\Cart\Delivery\DeliveryCalculator" />
+            <argument type="service" id="PaazlCheckoutWidget\RestApi\PaazlClient" />
+            <argument type="service" id="PaazlCheckoutWidget\Service\CartPaazlTokenService"/>
+        </service>
+
+        <!-- Override recalculation Service -->
+        <service id="PaazlCheckoutWidget\Core\Checkout\Cart\order\RecalculationPaazlData"
+                 decorates="Shopware\Core\Checkout\Cart\Order\RecalculationService" public="true"
+        >
+            <argument type="service" id="order.repository"/>
+            <argument type="service" id="Shopware\Core\Checkout\Cart\Order\OrderConverter"/>
+            <argument type="service" id="Shopware\Core\Checkout\Cart\SalesChannel\CartService"/>
+            <argument type="service" id="product.repository"/>
+            <argument type="service" id="order_address.repository"/>
+            <argument type="service" id="customer_address.repository"/>
+            <argument type="service" id="Shopware\Core\Checkout\Cart\Processor"/>
+            <argument type="service" id="Shopware\Core\Checkout\Cart\CartRuleLoader"/>
+            <argument type="service" id="Shopware\Core\Checkout\Promotion\Cart\PromotionItemBuilder"/>
+        </service>
+
+        <!-- Override cart order route -->
+        <service id="PaazlCheckoutWidget\Core\Checkout\Cart\SalesChannel\CartOrderRouteUpdate"
+                 decorates="Shopware\Core\Checkout\Cart\SalesChannel\CartOrderRoute" public="true"
+        >
+            <argument type="service" id="Shopware\Core\Checkout\Cart\CartCalculator"/>
+            <argument type="service" id="order.repository"/>
+            <argument type="service" id="Shopware\Core\Checkout\Cart\Order\OrderPersister"/>
+            <argument type="service" id="Shopware\Core\Checkout\Cart\CartPersister"/>
+            <argument type="service" id="event_dispatcher"/>
+            <argument type="service" id="Shopware\Core\Checkout\Payment\PreparedPaymentService"/>
+        </service>
+    </services>
+</container>

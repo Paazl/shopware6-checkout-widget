@@ -1,0 +1,11 @@
+{% sw_extends '@Storefront/storefront/page/account/order-history/order-detail.html.twig' %}
+
+{% block page_account_order_item_detail_shipping_method_value %}
+    {% if order.deliveries|first.shippingMethod.name == 'Paazl' %}
+    <dd class="col-6 col-md-7 order-item-detail-labels-value">
+        {{ order.customFields.paazlData.shippingOption.name }}
+    </dd>
+    {% else %}
+        {{ parent() }}
+    {% endif %}
+{% endblock %}

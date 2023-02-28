@@ -1,0 +1,25 @@
+<?xml version="1.0" ?>
+
+<container xmlns="http://symfony.com/schema/dic/services"
+           xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+           xsi:schemaLocation="http://symfony.com/schema/dic/services https://symfony.com/schema/dic/services/services-1.0.xsd">
+
+    <services>
+        <service id="PaazlCheckoutWidget\Controller\PaazlRetryController" public="true">
+            <call method="setContainer">
+                <argument type="service" id="service_container"/>
+            </call>
+            <argument type="service" id="PaazlCheckoutWidget\RestApi\PaazlClient" />
+            <argument type="service" id="PaazlCheckoutWidget\Service\Logger\PaazlLogger"/>
+            <argument type="service" id="order.repository"/>
+            <argument type="service" id="PaazlCheckoutWidget\Service\PaazlConfiguration"/>
+            <argument type="service" id="PaazlCheckoutWidget\Model\Transformer\CurrentOrderPayloadTransformer"/>
+        </service>
+        <service id="PaazlCheckoutWidget\Controller\ApiController" public="true">
+            <call method="setContainer">
+                <argument type="service" id="service_container"/>
+            </call>
+            <argument type="service" id="PaazlCheckoutWidget\RestApi\PaazlClient" />
+        </service>
+    </services>
+</container>

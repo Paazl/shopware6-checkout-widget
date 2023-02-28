@@ -1,0 +1,88 @@
+{% block sw_order_detail_base_secondary_info_delivery %}
+    <dt>{{ $tc('sw-order.detailBase.labelShippingMethod') }}</dt>
+    <dd>
+        <template v-if="hasDeliveries && currentOrder.customFields">
+            {{ delivery.shippingMethod.translated.name }}
+            {{ currentOrder.customFields.paazlTitle }}
+            <template v-if="currentOrder.customFields.paazlTitle">
+                {{ '[' }} {{ currentOrder.customFields.paazlTitle }} {{ ']' }}
+                <p><b>Paazl ReferenceId : </b>{{ currentOrder.customFields.paazlOrderReference }}</p>
+                <table class="paazlBackendData">
+                    <tr>
+                        <th colspan="2">Paazl Order Data</th>
+                    </tr>
+                    <tr v-if="currentOrder.customFields.paazlData.shippingOption && currentOrder.customFields.paazlData.shippingOption.identifier">
+                        <td>Identifier</td>
+                        <td>{{ currentOrder.customFields.paazlData.shippingOption.identifier }}</td>
+                    </tr>
+                    <tr v-if="currentOrder.customFields.paazlData.shippingOption && currentOrder.customFields.paazlData.shippingOption.carrier.name">
+                        <td>Carrier Name</td>
+                        <td>{{ currentOrder.customFields.paazlData.shippingOption.carrier.name }}</td>
+                    </tr>
+                    <tr v-if="currentOrder.customFields.paazlData.shippingOption && currentOrder.customFields.paazlData.shippingOption.carrier.description">
+                        <td>Carrier Description</td>
+                        <td>{{ currentOrder.customFields.paazlData.shippingOption.carrier.description }}</td>
+                    </tr>
+                    <tr v-if="currentOrder.customFields.paazlData.shippingOption && currentOrder.customFields.paazlData.shippingOption.estimatedDeliveryRange && currentOrder.customFields.paazlData.shippingOption.estimatedDeliveryRange.earliestDate && currentOrder.customFields.paazlData.shippingOption.estimatedDeliveryRange.latestDate">
+                        <td>Estimated Delivery Date Range </td>
+                        <td>{{ currentOrder.customFields.paazlData.shippingOption.estimatedDeliveryRange.earliestDate }} to {{ currentOrder.customFields.paazlData.shippingOption.estimatedDeliveryRange.latestDate }}</td>
+                    </tr>
+                    <tr v-if="currentOrder.customFields.paazlData.pickupLocation && currentOrder.customFields.paazlData.pickupLocation.address">
+                        <td>Pickup Location</td>
+                        <td>{{ currentOrder.customFields.paazlData.pickupLocation.address.street }},
+                            {{ currentOrder.customFields.paazlData.pickupLocation.address.streetNumber }},
+                            {{ currentOrder.customFields.paazlData.pickupLocation.address.streetNumberSuffix }},
+                            {{ currentOrder.customFields.paazlData.pickupLocation.address.postalCode }},
+                            {{ currentOrder.customFields.paazlData.pickupLocation.address.city }},
+                            {{ currentOrder.customFields.paazlData.pickupLocation.address.country }}</td>
+                    </tr>
+                    <tr v-if="currentOrder.customFields.paazlData.pickupLocation && currentOrder.customFields.paazlData.pickupLocation.name">
+                        <td>Pickup Location Name</td>
+                        <td>{{ currentOrder.customFields.paazlData.pickupLocation.name }}</td>
+                    </tr>
+                    <tr v-if="currentOrder.customFields.paazlData.pickupLocation && currentOrder.customFields.paazlData.pickupLocation.code">
+                        <td>Pickup Location Code</td>
+                        <td>{{ currentOrder.customFields.paazlData.pickupLocation.code }}</td>
+                    </tr>
+
+                    <tr v-if="currentOrder.customFields.paazlData.shippingOption && currentOrder.customFields.paazlData.preferredDeliveryDate">
+                        <td>Preferred Delivery Date</td>
+                        <td>{{ currentOrder.customFields.paazlData.preferredDeliveryDate }}</td>
+                    </tr>
+                    <tr v-if="currentOrder.customFields.paazlData.shippingOption && currentOrder.customFields.paazlData.shippingOption.deliveryDates[0] && currentOrder.customFields.paazlData.shippingOption.deliveryDates[0].deliveryDate && !currentOrder.customFields.paazlData.preferredDeliveryDate">
+                        <td>Delivery Date</td>
+                        <td>{{ currentOrder.customFields.paazlData.shippingOption.deliveryDates[0].deliveryDate }}</td>
+                    </tr>
+
+                    <tr v-if="currentOrder.customFields.paazlData.shippingOption && currentOrder.customFields.paazlData.shippingOption.deliveryDates[0] && currentOrder.customFields.paazlData.shippingOption.deliveryDates[0].pickupDate">
+                        <td>Pickup Date</td>
+                        <td>{{ currentOrder.customFields.paazlData.shippingOption.deliveryDates[0].pickupDate }}</td>
+                    </tr>
+
+                    <tr v-if="currentOrder.customFields.paazlData.shippingOption && currentOrder.customFields.paazlData.shippingOption.estimatedDeliveryRange">
+                        <td>Estimate Delivery Days range</td>
+                        <td>{{ currentOrder.customFields.paazlData.shippingOption.estimatedDeliveryRange.min }} {{ "To" }}
+                            {{ currentOrder.customFields.paazlData.shippingOption.estimatedDeliveryRange.max }} {{ "Days" }}
+                        </td>
+                    </tr>
+                </table>
+
+                <p><b>Paazl Order Status : </b>{{ currentOrder.customFields.PaazlPost }}</p>
+                <sw-button id="PaazlRetryBtn"
+                           :disabled="false"
+                           variant="primary"
+                           :square="false"
+                           :block="false"
+                           :isLoading="false"
+                           @click="onPaazlRetry">
+                    {{ $t('Paazl.fields.retryBtn') }}
+                </sw-button>
+
+            </template>
+        </template>
+        <template v-else="hasDeliveries">
+            {{ $tc('sw-order.detailBase.labelNoDeliveriesYet') }}
+        </template>
+    </dd>
+{% endblock %}
+

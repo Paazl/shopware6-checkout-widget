@@ -1,0 +1,26 @@
+{% block sw_product_detail_paazl %}
+    <sw-card :title="$tc('Paazl.tab.title')">
+        <sw-container gap="0px 30px" class="sw-product-detail-paazl-form__container">
+
+            <sw-container columns="1fr">
+                    <div class="text-field">
+                        <sw-inherit-wrapper :label="$tc('Paazl.fields.numberOfProcessingDays')"
+                                            v-model="productNumberOfProcessingDays"
+                                            :hasParent="hasParentProduct"
+                                            :inheritedValue="parentNumberOfProcessingDays"
+                                            :customInheritationCheckFunction="checkInheritance"
+                                            :customRestoreInheritanceFunction="restoreInheritance"
+                                            :customRemoveInheritanceFunction="removeInheritance">
+                            <template #content="props">
+                                <sw-text-field :disabled="props.isInherited"
+                                               :value="props.currentValue"
+                                               @change="onNumberOfProcessingDaysChanged">
+                                </sw-text-field>
+                            </template>
+                        </sw-inherit-wrapper>
+                    </div>
+                </sw-container>
+
+        </sw-container>
+    </sw-card>
+{% endblock %}

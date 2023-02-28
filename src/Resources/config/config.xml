@@ -1,0 +1,482 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:noNamespaceSchemaLocation="https://raw.githubusercontent.com/shopware/platform/master/src/Core/System/SystemConfig/Schema/config.xsd">
+
+    <card>
+        <title>API Details</title>
+
+        <input-field type="bool">
+            <name>Enable</name>
+            <label>Enable</label>
+            <defaultValue>true</defaultValue>
+        </input-field>
+
+        <input-field>
+            <name>apiKey</name>
+            <copyable>true</copyable>
+            <label>API Key</label>
+            <placeholder>API Key</placeholder>
+            <helpText>Your Paazl API-Key.</helpText>
+        </input-field>
+
+        <input-field type="password">
+            <name>SecretKey</name>
+            <label>Secret Key</label>
+            <placeholder>Secret Key</placeholder>
+            <helpText>Your Paazl API secret key.</helpText>
+        </input-field>
+
+        <input-field type="single-select">
+            <name>environment</name>
+            <label>Environment</label>
+            <options>
+                <option>
+                    <id>staging</id><name>Staging</name>
+                </option>
+                <option>
+                    <id>production</id><name>Production</name>
+                </option>
+            </options>
+            <defaultValue>staging</defaultValue>
+            <helpText>Choose whether you want to use the Paazl Checkout Widget in Paazl's staging or production environment.</helpText>
+        </input-field>
+
+        <component name="paazl-checkout-test-button">
+            <name>paazlCheckoutTestButton</name>
+            <label>Check Credentials</label>
+        </component>
+
+    </card>
+
+    <card>
+        <title>Widget</title>
+
+        <input-field type="single-select">
+            <name>style</name>
+            <label>Checkout Widget Style</label>
+            <defaultValue>DEFAULT</defaultValue>
+            <options>
+                <option>
+                    <id>DEFAULT</id><name>Default</name>
+                </option>
+                <option>
+                    <id>MINIMAL</id><name>Minimal</name>
+                </option>
+                <option>
+                    <id>GREEN</id><name>Green</name>
+                </option>
+                <option>
+                    <id>LIGHT_GREEN</id><name>Light Green</name>
+                </option>
+                <option>
+                    <id>BROWN</id><name>Brown</name>
+                </option>
+                <option>
+                    <id>BLUE</id><name>Blue</name>
+                </option>
+                <option>
+                    <id>RED</id><name>Red</name>
+                </option>
+                <option>
+                    <id>CUSTOM</id><name>Custom</name>
+                </option>
+            </options>
+            <helpText>Select the widget style that you want to use.</helpText>
+        </input-field>
+
+        <input-field type="multi-select">
+            <name>availableTabs</name>
+            <label>Available Tabs</label>
+            <options>
+                <option>
+                    <id>DELIVERY</id><name>Delivery</name>
+                </option>
+                <option>
+                    <id>STORE</id><name>Store</name>
+                </option>
+                <option>
+                    <id>PICKUP</id><name>Pickup</name>
+                </option>
+            </options>
+            <helpText>Select the widget tabs that you want to display.</helpText>
+        </input-field>
+
+        <input-field type="single-select">
+            <name>defaultTab</name>
+            <label>Widget Default Tab</label>
+            <defaultValue>DELIVERY</defaultValue>
+            <options>
+                <option>
+                    <id>DELIVERY</id><name>Delivery</name>
+                </option>
+                <option>
+                    <id>STORE</id><name>Store</name>
+                </option>
+                <option>
+                    <id>PICKUP</id><name>Pickup</name>
+                </option>
+            </options>
+            <helpText>Select sections toggle appearance for the Paazl widget.</helpText>
+        </input-field>
+
+        <input-field type="single-select">
+            <name>headerTabType</name>
+            <label>Widget Toggle</label>
+            <defaultValue>TAB</defaultValue>
+            <options>
+                <option>
+                    <id>BUTTON</id><name>Button</name>
+                </option>
+                <option>
+                    <id>TAB</id><name>Tab</name>
+                </option>
+            </options>
+            <helpText>Select which tab the Paazl widget should display first.</helpText>
+        </input-field>
+
+        <input-field type="single-select">
+            <name>nominatedDateEnabled</name>
+            <label>Enable Nominated Date</label>
+            <defaultValue>true</defaultValue>
+            <options>
+                <option>
+                    <id>true</id><name>Yes</name>
+                </option>
+                <option>
+                    <id>false</id><name>No</name>
+                </option>
+            </options>
+            <helpText>If enabled, shipping options will be displayed grouped by date. If disabled, the list will be displayed in ascending order.</helpText>
+        </input-field>
+
+        <input-field>
+            <name>shippingOptionsLimit</name>
+            <label>Max # Delivery Tab Shipping Options</label>
+            <defaultValue>10</defaultValue>
+            <helpText>Limits the number of shipping options displayed on the widget's "delivery" tabs.</helpText>
+        </input-field>
+        <input-field>
+            <name>pickupLocationsPageLimit</name>
+            <label>Max # Pickup Tab Shipping Options</label>
+            <defaultValue>10</defaultValue>
+            <helpText>Limits the number of pickup locations displayed on the widget's "pickup" and "store" tabs.</helpText>
+        </input-field>
+        <input-field>
+            <name>initialPickupLocations</name>
+            <label>Max # Max Locations Initially Displayed</label>
+            <defaultValue>3</defaultValue>
+            <helpText>Limits the number of pickup locations initially displayed on the widget's "pickup" and "store" maps.</helpText>
+        </input-field>
+        <input-field>
+            <name>pickupLocationsLimit</name>
+            <label>Max # Max Locations Displayed</label>
+            <defaultValue>20</defaultValue>
+            <helpText>Limits the maximum number of pickup locations displayed on the widget's pickup location maps.</helpText>
+        </input-field>
+        <input-field>
+            <name>numberOfDays</name>
+            <label>deliveryDateOptions (NumberOfDays)</label>
+            <defaultValue>7</defaultValue>
+            <helpText>The length of time in days after startDate for which shipping options are supplied. The default value is 7.
+                Example: numberOfDays:3</helpText>
+        </input-field>
+        <input-field type="single-select">
+            <name>isPricingEnabled</name>
+            <label>isPricingEnabled</label>
+            <defaultValue>true</defaultValue>
+            <options>
+                <option><id>true</id><name>True</name></option>
+                <option><id>false</id><name>False</name></option>
+            </options>
+            <helpText>If false, the shipping rates of the various shipping options will not be displayed in the widget.</helpText>
+        </input-field>
+        <input-field type="single-select">
+            <name>isShowAsExtraCost</name>
+            <label>isShowAsExtraCost</label>
+            <defaultValue>true</defaultValue>
+            <options>
+                <option><id>true</id><name>True</name></option>
+                <option><id>false</id><name>False</name></option>
+            </options>
+            <helpText>If true, the shipping cost will be displayed as a separate amount using a "plus" symbol, If false, no "plus" symbol will be displayed</helpText>
+        </input-field>
+        <input-field type="single-select">
+            <name>deliveryRangeFormat</name>
+            <label>deliveryRangeFormat</label>
+            <defaultValue>DATE</defaultValue>
+            <options>
+                <option><id>DATE</id><name>DATE</name></option>
+                <option><id>NUMBER</id><name>NUMBER</name></option>
+            </options>
+            <helpText>Indicates whether you want date ranges displayed on shipping option rows displayed as a number of days, or as a date range.</helpText>
+        </input-field>
+        <input-field type="single-select">
+            <name>deliveryOptionDateFormat</name>
+            <label>deliveryOptionDateFormat</label>
+            <defaultValue>ddd DD MMM</defaultValue>
+            <options>
+                <option><id>ddd DD MMM</id><name>Tue 28 Jun</name></option>
+                <option><id>dddd, MMMM, YYYY </id><name>Tuesday, June, 2022</name></option>
+                <option><id>M/D/YY</id><name>5/3/98</name></option>
+                <option><id>MMM D, YYYY</id><name>Nov 20, 2015</name></option>
+                <option><id>MMMM D, YYYY</id><name>November 4, 2005</name></option>
+                <option><id>dddd, MMMM D, YYYY</id><name>Friday, November 22, 2015</name></option>
+                <option><id>MMMM Do, YYYY</id><name>February 3rd, 2014</name></option>
+                <option><id>dddd MMMM Do, YYYY</id><name>Friday November 20th, 2015</name></option>
+                <option><id>dd/MM/YYYY</id><name>02/06/2022</name></option>
+                <option><id>MM.dd.YY</id><name>06.02.22</name></option>
+                <option><id>YYYY-MM-dd</id><name>2022-06-02</name></option>
+            </options>
+            <helpText>The format for dates displayed in the shipping option rows of the widget's "Delivery" tab.</helpText>
+        </input-field>
+        <input-field type="single-select">
+            <name>deliveryEstimateDateFormat</name>
+            <label>deliveryEstimateDateFormat</label>
+            <defaultValue>ddd DD MMM</defaultValue>
+            <options>
+                <option><id>ddd DD MMM</id><name>Tue 28 Jun</name></option>
+                <option><id>dddd, MMMM, YYYY </id><name>Tuesday, June, 2022</name></option>
+                <option><id>M/D/YY</id><name>5/3/98</name></option>
+                <option><id>MMM D, YYYY</id><name>Nov 20, 2015</name></option>
+                <option><id>MMMM D, YYYY</id><name>November 4, 2005</name></option>
+                <option><id>dddd, MMMM D, YYYY</id><name>Friday, November 22, 2015</name></option>
+                <option><id>MMMM Do, YYYY</id><name>February 3rd, 2014</name></option>
+                <option><id>dddd MMMM Do, YYYY</id><name>Friday November 20th, 2015</name></option>
+                <option><id>dd/MM/YYYY</id><name>02/06/2022</name></option>
+                <option><id>MM.dd.YY</id><name>06.02.22</name></option>
+                <option><id>YYYY-MM-dd</id><name>2022-06-02</name></option>
+            </options>
+            <helpText>The format for dates displayed in the footer of the widget's "Delivery" tab.</helpText>
+        </input-field>
+        <input-field type="single-select">
+            <name>pickupOptionDateFormat</name>
+            <label>pickupOptionDateFormat</label>
+            <defaultValue>ddd DD MMM</defaultValue>
+            <options>
+                <option><id>ddd DD MMM</id><name>Tue 28 Jun</name></option>
+                <option><id>dddd, MMMM, YYYY </id><name>Tuesday, June, 2022</name></option>
+                <option><id>M/D/YY</id><name>5/3/98</name></option>
+                <option><id>MMM D, YYYY</id><name>Nov 20, 2015</name></option>
+                <option><id>MMMM D, YYYY</id><name>November 4, 2005</name></option>
+                <option><id>dddd, MMMM D, YYYY</id><name>Friday, November 22, 2015</name></option>
+                <option><id>MMMM Do, YYYY</id><name>February 3rd, 2014</name></option>
+                <option><id>dddd MMMM Do, YYYY</id><name>Friday November 20th, 2015</name></option>
+                <option><id>dd/MM/YYYY</id><name>02/06/2022</name></option>
+                <option><id>MM.dd.YY</id><name>06.02.22</name></option>
+                <option><id>YYYY-MM-dd</id><name>2022-06-02</name></option>
+            </options>
+            <helpText>The format for dates displayed in the shipping option rows of the widget's "Pickup" tab.</helpText>
+        </input-field>
+        <input-field type="single-select">
+            <name>pickupEstimateDateFormat</name>
+            <label>pickupEstimateDateFormat</label>
+            <defaultValue>ddd DD MMM</defaultValue>
+            <options>
+                <option><id>ddd DD MMM</id><name>Tue 28 Jun</name></option>
+                <option><id>dddd, MMMM, YYYY </id><name>Tuesday, June, 2022</name></option>
+                <option><id>M/D/YY</id><name>5/3/98</name></option>
+                <option><id>MMM D, YYYY</id><name>Nov 20, 2015</name></option>
+                <option><id>MMMM D, YYYY</id><name>November 4, 2005</name></option>
+                <option><id>dddd, MMMM D, YYYY</id><name>Friday, November 22, 2015</name></option>
+                <option><id>MMMM Do, YYYY</id><name>February 3rd, 2014</name></option>
+                <option><id>dddd MMMM Do, YYYY</id><name>Friday November 20th, 2015</name></option>
+                <option><id>dd/MM/YYYY</id><name>02/06/2022</name></option>
+                <option><id>MM.dd.YY</id><name>06.02.22</name></option>
+                <option><id>YYYY-MM-dd</id><name>2022-06-02</name></option>
+            </options>
+            <helpText>The format for dates displayed in the footer of the widget's "Pickup" tab.</helpText>
+        </input-field>
+        <input-field type="single-select">
+            <name>orderBy</name>
+            <label>orderBy</label>
+            <defaultValue>PRICE</defaultValue>
+            <options>
+                <option><id>PRICE</id><name>PRICE</name></option>
+                <option><id>DATE</id><name>DATE</name></option>
+                <option><id>CARRIER</id><name>CARRIER</name></option>
+            </options>
+            <helpText>Indicates how the displayed shipping options should be sorted.</helpText>
+        </input-field>
+        <input-field type="single-select">
+            <name>sortOrder</name>
+            <label>sortOrder</label>
+            <defaultValue>ASC</defaultValue>
+            <options>
+                <option><id>ASC</id><name>ASC</name></option>
+                <option><id>DESC</id><name>DESC</name></option>
+            </options>
+            <helpText>Indicates the order in which shipping options should be sorted.</helpText>
+        </input-field>
+
+        <input-field type="single-select">
+            <name>hideNonPaazlShippingOptions</name>
+            <label>Hide non-Paazl shipping options</label>
+            <defaultValue>yes</defaultValue>
+            <options>
+                <option>
+                    <id>yes</id><name>Yes</name>
+                </option>
+                <option>
+                    <id>no</id><name>No</name>
+                </option>
+            </options>
+            <helpText>Choose whether you want to display shipping options from sources other than Paazl.</helpText>
+        </input-field>
+    </card>
+
+    <card>
+        <title>Defaults</title>
+
+        <input-field>
+            <name>shippingTitle</name>
+            <label>Default Method Title</label>
+            <defaultValue>Standard</defaultValue>
+        </input-field>
+
+        <input-field>
+            <name>shippingName</name>
+            <label>Default Method Name</label>
+            <defaultValue>Paazl</defaultValue>
+        </input-field>
+
+        <input-field type="single-select">
+            <name>showOnFirstLoad</name>
+            <label>Show Widget on FirstLoad</label>
+            <defaultValue>yes</defaultValue>
+            <options>
+                <option>
+                    <id>yes</id><name>Yes</name>
+                </option>
+                <option>
+                    <id>no</id><name>No</name>
+                </option>
+            </options>
+            <helpText>Set to Yes if you want to load the Widget on the first checkout load before the client details are filled in. The default values below would be used on this first load and can be set on store-level.</helpText>
+        </input-field>
+
+        <component name="sw-entity-single-select">
+            <name>country</name>
+            <entity>country</entity>
+            <label>Default Country</label>
+        </component>
+
+        <input-field>
+            <name>postalCode</name>
+            <label>Default Postal Code</label>
+            <defaultValue>1018LL</defaultValue>
+            <helpText>The checkout widget will display the pickup locations nearest to this postal code.</helpText>
+        </input-field>
+
+        <input-field type="textarea">
+            <name>infoText</name>
+            <label>Infotext</label>
+            <helpText>Use this to show some info on checkout shipping method.</helpText>
+        </input-field>
+
+        <input-field type="single-select">
+            <name>housenumberDefaultValue</name>
+            <label>Set default housenumber value if no houseNumber is found in address</label>
+            <defaultValue>yes</defaultValue>
+            <options>
+                <option>
+                    <id>yes</id><name>Yes</name>
+                </option>
+                <option>
+                    <id>no</id><name>No</name>
+                </option>
+            </options>
+        </input-field>
+
+        <input-field type="single-select">
+            <name>paidOrder</name>
+            <label>Sent only paid orders to paazl</label>
+            <defaultValue>no</defaultValue>
+            <options>
+                <option>
+                    <id>yes</id><name>Yes</name>
+                </option>
+                <option>
+                    <id>no</id><name>No</name>
+                </option>
+            </options>
+        </input-field>
+    </card>
+
+    <card>
+        <title>Paazl Info In Email Template</title>
+
+        <component name="custom-info-test">
+            <name>infoText</name>
+        </component>
+    </card>
+
+    <card>
+        <title>Total Price</title>
+        <input-field type="single-select">
+            <name>Price</name>
+            <label>Select Price which will be used for total Price </label>
+            <defaultValue>yes</defaultValue>
+            <options>
+                <option>
+                    <id>TotalInclTax</id><name>Total incl Tax</name>
+                </option>
+                <option>
+                    <id>TotalExclTax</id><name>Total excl Tax</name>
+                </option>
+            </options>
+        </input-field>
+    </card>
+
+    <card>
+        <title>Advanced Settings</title>
+
+        <input-field>
+            <name>referencePrefix</name>
+            <label>Order reference prefix</label>
+            <defaultValue>shopware-</defaultValue>
+            <helpText>Use this to distinguish between orders in each environment.</helpText>
+        </input-field>
+
+        <input-field type="single-select">
+            <name>freeShipping</name>
+            <label>Free Shipping Enabled</label>
+            <defaultValue>no</defaultValue>
+            <options>
+                <option>
+                    <id>yes</id><name>Yes</name>
+                </option>
+                <option>
+                    <id>no</id><name>No</name>
+                </option>
+            </options>
+        </input-field>
+
+        <input-field>
+            <name>startMatrix</name>
+            <label>Matrix Letter</label>
+            <defaultValue>AA</defaultValue>
+            <helpText>API Matrix letter for free shipping</helpText>
+        </input-field>
+
+        <input-field>
+            <name>insuranceValue</name>
+            <label>Insurance value</label>
+            <defaultValue>500</defaultValue>
+            <helpText>Fill in the insurance amount as a number.</helpText>
+        </input-field>
+
+        <input-field type="textarea">
+            <name>customCss</name>
+            <label>Custom CSS</label>
+        </input-field>
+
+        <input-field type="bool">
+            <name>debugMode</name>
+            <label>Activate debug mode</label>
+            <label lang="de-DE">Aktiviert den Debug-Modus</label>
+            <helpText>Logs all requests and responses to the plugin log.</helpText>
+            <helpText lang="de-DE">Protokolliert alle Anfragen und Antworten auf das Plugin-Log.</helpText>
+        </input-field>
+    </card>
+
+</config>
