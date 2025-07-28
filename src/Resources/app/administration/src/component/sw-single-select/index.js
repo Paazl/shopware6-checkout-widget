@@ -1,4 +1,4 @@
-Shopware.Component.override('sw-single-select', {
+export default {
     created() {
         if (this.$attrs.name === "PaazlCheckoutWidget.config.freeShipping") {
             if (this.currentValue === 'no') {
@@ -19,4 +19,4 @@ Shopware.Component.override('sw-single-select', {
             }
         }
     },
-});
+};

@@ -6,7 +6,7 @@ class PaazlCheckoutApiCredentialsService extends ApiService {
         super(httpClient, loginService, apiEndpoint);
     }
 
-    validateSandboxApi()
+    validateSandboxApi(apiKey, secretKey)
     {
         // get default headers
         const headers = this.getBasicHeaders();
@@ -14,6 +14,7 @@ class PaazlCheckoutApiCredentialsService extends ApiService {
         // call the api and return the response
         return this.httpClient
             .post('paazl-checkout/validate-sandbox-api', {
+                apiKey, secretKey
             }, {
                 headers
             })

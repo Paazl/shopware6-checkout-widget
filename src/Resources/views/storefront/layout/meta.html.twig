@@ -1,13 +1,47 @@
 {% sw_extends '@Storefront/storefront/layout/meta.html.twig' %}
 
-{% block layout_head_title %}
+{% block layout_head_javascript_hmr_mode %}
 
-    {{ parent() }}
+    {% set paazlExist = false %}
+    {% for shippingMethod in page.salesChannelShippingMethods %}
+        {% if shippingMethod.customFields.paazlName == constant('PaazlCheckoutWidget\\PaazlCheckoutWidget::SHIPPING_METHOD_NAME') %}
+            {% set paazlExist = true %}
+        {% endif %}
+    {% endfor %}
 
-    {% if config('PaazlCheckoutWidget.config.environment') == "staging" %}
-        <script type="text/javascript" id="paazl-script-loader" src="https://widget-acc.paazl.com/v1/checkout.js"></script>
-    {% else %}
-        <script type="text/javascript" id="paazl-script-loader" src="https://widget.paazl.com/v1/checkout.js"></script>
+    {% set currentRoute = app.request.attributes.get('_route') %}
+    {% if currentRoute not in ['frontend.checkout.cart.page', 'frontend.checkout.confirm.page', 'frontend.checkout.edit-order.page', 'frontend.paazl.retry-order-export-admin'] %}
+        {% set paazlExist = false %}
     {% endif %}
 
+    {% if paazlExist %}
+        {% block layout_add_paazl_assets %}
+            {% set localWidget = config('PaazlCheckoutWidget.config.useLocalWidget') %}
+            {% if config('PaazlCheckoutWidget.config.environment') == "staging" %}
+                {% if localWidget == "true" %}
+                    <script src="{{ asset('bundles/paazlcheckoutwidget/static/js/checkout_local_test.js', 'asset') }}"></script>
+                    <link rel="stylesheet" href="{{ asset('bundles/paazlcheckoutwidget/static/css/paazl-checkout-custom.scss', 'asset') }}">
+                {% else %}
+                    {% if config('PaazlCheckoutWidget.config.apiVersion') == 'latest' %}
+                        <script type="text/javascript" id="paazl-script-loader" src="https://widget-acc.paazl.com/v1/latest/checkout.js"></script>
+                    {% else %}
+                        <script type="text/javascript" id="paazl-script-loader" src="https://widget-acc.paazl.com/v1/stable/checkout.js"></script>
+                    {% endif %}
+                {% endif %}
+            {% else %}
+                {% if localWidget == "true" %}
+                    <script src="{{ asset('bundles/paazlcheckoutwidget/static/js/checkout_local_live.js', 'asset') }}"></script>
+                    <link rel="stylesheet" href="{{ asset('bundles/paazlcheckoutwidget/static/css/paazl-checkout-custom.scss', 'asset') }}">
+                {% else %}
+                    {% if config('PaazlCheckoutWidget.config.apiVersion') == 'latest' %}
+                        <script type="text/javascript" id="paazl-script-loader" src="https://widget.paazl.com/v1/latest/checkout.js"></script>
+                    {% else %}
+                        <script type="text/javascript" id="paazl-script-loader" src="https://widget.paazl.com/v1/stable/checkout.js"></script>
+                    {% endif %}
+                {% endif %}
+            {% endif %}
+        {% endblock %}
+    {% endif %}
+
+    {{ parent() }}
 {% endblock %}

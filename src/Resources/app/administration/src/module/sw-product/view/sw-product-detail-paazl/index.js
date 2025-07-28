@@ -5,7 +5,7 @@ import ProductService from '../../../../core/service/product/product.service';
 
 const {mapState} = Shopware.Component.getComponentHelper();
 
-Shopware.Component.register('sw-product-detail-paazl', {
+export default {
 
     template,
 
@@ -29,7 +29,6 @@ Shopware.Component.register('sw-product-detail-paazl', {
     },
 
     computed: {
-
         ...mapState('swProductDetail', [
             'product',
         ]),
@@ -58,12 +57,10 @@ Shopware.Component.register('sw-product-detail-paazl', {
         hasParentProduct() {
             return (!this.stringUtils.isNullOrEmpty(this.product.parentId));
         },
-
     },
 
 
     methods: {
-
         mountedComponent() {
             this.readPaazlData();
         },
@@ -135,4 +132,4 @@ Shopware.Component.register('sw-product-detail-paazl', {
         },
     },
 
-});
+};

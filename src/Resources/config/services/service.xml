@@ -7,9 +7,44 @@
     <services>
         <service id="PaazlCheckoutWidget\Service\CartPaazlTokenService">
             <argument type="service" id="Doctrine\DBAL\Connection"/>
+            <argument type="service" id="PaazlCheckoutWidget\Service\PaazlConfiguration"/>
         </service>
+
         <service id="PaazlCheckoutWidget\Service\PaazlConfiguration">
             <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService"/>
+        </service>
+
+        <service id="PaazlCheckoutWidget\Service\CustomCookieProvider"
+                 decorates="Shopware\Storefront\Framework\Cookie\CookieProviderInterface">
+            <argument type="service"
+                      id="PaazlCheckoutWidget\Service\CustomCookieProvider.inner"/>
+        </service>
+
+        <service id="PaazlCheckoutWidget\Service\OrderExportService">
+            <argument type="service" id="PaazlCheckoutWidget\RestApi\PaazlClient"/>
+            <argument type="service" id="PaazlCheckoutWidget\Model\Transformer\PaazlOrderTransformer"/>
+            <argument type="service" id="PaazlCheckoutWidget\Service\CartPaazlTokenService"/>
+            <argument type="service" id="order.repository"/>
+            <argument type="service" id="monolog.logger.paazl_order_export"/>
+        </service>
+
+        <service id="PaazlCheckoutWidget\Service\GeneratePaazlScript">
+            <argument type="service" id="Shopware\Core\Checkout\Cart\SalesChannel\CartService"/>
+            <argument type="service" id="PaazlCheckoutWidget\Service\PaazlConfiguration"/>
+            <argument type="service" id="language.repository"/>
+            <argument type="service" id="country.repository"/>
+            <argument type="service" id="PaazlCheckoutWidget\RestApi\PaazlApiTokenProvider"/>
+        </service>
+
+        <service id="PaazlCheckoutWidget\Service\ScheduledTask\CleanupReferenceTableTask">
+            <tag name="shopware.scheduled.task" />
+        </service>
+
+        <service id="PaazlCheckoutWidget\Service\ScheduledTask\CleanupReferenceTableTaskHandler">
+            <tag name="messenger.message_handler" />
+            <argument type="service" id="scheduled_task.repository" />
+            <argument type="service" id="logger"/>
+            <argument type="service" id="PaazlCheckoutWidget\Service\CartPaazlTokenService"/>
         </service>
     </services>
 </container>

@@ -1,5 +1,5 @@
-import './page/sw-product-detail'
-import './view/sw-product-detail-paazl'
+Shopware.Component.override('sw-product-detail', () => import('./page/sw-product-detail'));
+Shopware.Component.register('sw-product-detail-paazl', () => import('./view/sw-product-detail-paazl'));
 
 import deDE from './snippet/de-DE.json';
 import enGB from './snippet/en-GB.json';

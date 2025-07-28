@@ -2,10 +2,13 @@
     <dt>{{ $tc('sw-order.detailDeliveries.labelShippingMethod') }}</dt>
     <dd>
         {{ delivery.shippingMethod.translated.name }}
-        <div v-if="order.customFields">
+
+        <template v-if="order.customFields">
             <template v-if="order.customFields.paazlTitle">
-                {{ '[' }} {{ order.customFields.paazlTitle }} {{ ']' }}
+                <div>
+                    [{{ order.customFields.paazlTitle }}]
+                </div>
             </template>
-        </div>
+        </template>
     </dd>
 {% endblock %}

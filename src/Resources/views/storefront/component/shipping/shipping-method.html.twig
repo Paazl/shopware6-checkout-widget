@@ -1,8 +1,10 @@
 {% sw_extends '@Storefront/storefront/component/shipping/shipping-method.html.twig' %}
 
 {% block component_shipping_method_field %}
-    {% if (config('PaazlCheckoutWidget.config.hideNonPaazlShippingOptions') == 'yes')  %}
-        {% if shipping.name == 'Paazl' %}
+    {% set isTokenSet = page.paazlTokenData['token'] is string %}
+
+    {% if (config('PaazlCheckoutWidget.config.hideNonPaazlShippingOptions') == 'yes') and isTokenSet %}
+        {% if shipping.customFields.paazlName == constant('PaazlCheckoutWidget\\PaazlCheckoutWidget::SHIPPING_METHOD_NAME') %}
             {{ parent() }}
         {% endif %}
     {% else %}
@@ -10,8 +12,17 @@
     {% endif %}
 {% endblock %}
 
+{% block component_shipping_method_input %}
+    <input type="radio"
+           id="shippingMethod{{ shipping.id }}"
+           name="shippingMethodId"
+           value="{{ shipping.id }}"
+           {% if shipping.id === context.shippingMethod.id %}checked="checked"{% endif %}
+           class="form-check-input shipping-method-input {% if config('PaazlCheckoutWidget.config.hideNonPaazlShippingOptions') == 'yes' and isTokenSet %}paazl-method-class{% endif %}">
+{% endblock %}
+
 {% block component_shipping_method_control %}
-    {% if (config('PaazlCheckoutWidget.config.hideNonPaazlShippingOptions') == 'yes')  %}
+    {% if (config('PaazlCheckoutWidget.config.hideNonPaazlShippingOptions') == 'yes') and isTokenSet %}
         <div class="paazl-hide-radio">
             {{ parent() }}
         </div>
@@ -19,3 +30,4 @@
         {{ parent() }}
     {% endif %}
 {% endblock %}
+

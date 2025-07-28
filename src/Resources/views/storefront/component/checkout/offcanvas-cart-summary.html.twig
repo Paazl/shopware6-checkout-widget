@@ -1,27 +1,26 @@
 {% sw_extends '@Storefront/storefront/component/checkout/offcanvas-cart-summary.html.twig' %}
 {% block component_offcanvas_summary_content_info %}
+    {% if activeShipping.shippingMethod.customFields.paazlName != constant('PaazlCheckoutWidget\\PaazlCheckoutWidget::SHIPPING_METHOD_NAME') %}
+        {{ parent() }}
+    {% else %}
+        {% if not page.cart.hasState('no-paazl') %}
+            {% block paazl_component_offcanvas_summary_content_shipping_info %}
+                <div class="row offcanvas-shipping-info">
+                    {% block paazl_component_offcanvas_summary_content_shipping_cost_label %}
+                        <span class="col-7 shipping-label shipping-cost">
+                            <strong>{{ "checkout.summaryShipping"|trans|sw_sanitize }}</strong>
+                            {% set delivery = page.cart.deliveries.first %}
+                            <small>({{ delivery.shippingMethod.customFields['paazlTitle'] ?? 'Paazl' }})</small>
+                        </span>
+                    {% endblock %}
 
-    <div class="row offcanvas-shipping-info">
-        <span class="col-7 shipping-label shipping-cost">
-        <strong>{{ "checkout.summaryShipping"|trans|sw_sanitize }}</strong>
-            {% if loop.first %}
-                {% if activeShipping.shippingMethod.translated.name != 'Paazl'%}
-                <small {% if page.shippingMethods|length %}class="js-toggle-shipping-selection"{% endif %}>
-                    ({{ activeShipping.shippingMethod.translated.name }})
-                </small>
-                {% endif %}
-                {% if activeShipping.shippingMethod.translated.name == 'Paazl'%}
-                    {% set delivery = page.cart.deliveries.first %}
-                    {% if delivery.shippingMethod.customFields is not null and delivery.shippingMethod.customFields['paazlTitle'] is not null %}
-                        <small>({{ delivery.shippingMethod.customFields['paazlTitle'] }})</small>
-                    {% else %}
-                        <small>({{ config('PaazlCheckoutWidget.config.shippingName') }})</small>
-                    {% endif %}
-                {% endif %}
-            {% endif %}
-        </span>
-        <span class="col-5 pb-2 shipping-value shipping-cost">
-            <strong>+ {{ activeShipping.shippingCosts.totalPrice|currency }}</strong>
-        </span>
-    </div>
+                    {% block paazl_component_offcanvas_summary_content_shipping_cost_value %}
+                        <span class="col-5 pb-2 shipping-value shipping-cost">
+                            <strong>+ {{ activeShipping.shippingCosts.totalPrice|currency }}</strong>
+                        </span>
+                    {% endblock %}
+                </div>
+            {% endblock %}
+        {% endif %}
+    {% endif %}
 {% endblock %}

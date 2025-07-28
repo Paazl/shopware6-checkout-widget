@@ -1,30 +1,24 @@
-<?php declare(strict_types=1);
+<?php
+declare(strict_types=1);
 
 namespace PaazlCheckoutWidget\Service\Logger;
 
 use Monolog\Logger;
 use Psr\Log\LoggerInterface;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\Uuid\Uuid;
 
-class PaazlLogger
+readonly class PaazlLogger
 {
-    private EntityRepositoryInterface $logEntryRepository;
-
-    private LoggerInterface $logger;
-
     public function __construct(
-        EntityRepositoryInterface $logEntryRepository,
-        LoggerInterface $logger
+        private EntityRepository $logEntryRepository,
+        private LoggerInterface $logger
     ) {
-        $this->logEntryRepository = $logEntryRepository;
-        $this->logger = $logger;
     }
 
     public function addEntry(
         $message,
-        Context $context,
         ?\Throwable $exception = null,
         ?array $additionalData = null,
         int $level = Logger::DEBUG
@@ -43,16 +37,17 @@ class PaazlLogger
 
         $this->logger->log($level, $message, $additionalData);
 
-        $this->logEntryRepository->create([[
-            'id' => Uuid::randomHex(),
-            'message' => mb_substr($message, 0, 255),
-            'level' => $level,
-            'channel' => 'Paazl',
-            'context' => [
-                'source' => 'Paazl',
-                'additionalData' => $additionalData,
-                'shopContext' => $context->getVars(),
+        $this->logEntryRepository->create([
+            [
+                'id' => Uuid::randomHex(),
+                'message' => mb_substr($message, 0, 255),
+                'level' => $level,
+                'channel' => 'Paazl',
+                'context' => [
+                    'source' => 'Paazl',
+                    'additionalData' => $additionalData,
+                ],
             ],
-        ]], $context);
+        ], Context::createDefaultContext());
     }
 }

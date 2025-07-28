@@ -1,7 +1,5 @@
 export default class ProductService {
-
     /**
-     *
      * @param product
      * @param {ProductAttributes} paazlAttributes
      */
@@ -17,5 +15,4 @@ export default class ProductService {
 
         product.customFields.paazl = paazlAttributes.toArray();
     }
-
 }

@@ -1,13 +1,19 @@
 {% sw_extends '@Storefront/storefront/page/checkout/finish/finish-details.html.twig' %}
 
 {% block page_checkout_finish_order_dispatch_method %}
-    <p>
-        <strong>{{ "checkout.finishInfoShipping"|trans|sw_sanitize }}</strong>
-        {% if page.order.deliveries.first.shippingMethod.translated.name != 'Paazl'%}
-            {{ page.order.deliveries.first.shippingMethod.translated.name }}
-        {% endif %}
-        {% if page.order.customfields.paazlTitle %}
-            ({{ page.order.customfields.paazlData.shippingOption.name }})
-        {% endif %}
-    </p>
+    {% if page.order.deliveries.first.shippingMethod.customFields.paazlName != constant('PaazlCheckoutWidget\\PaazlCheckoutWidget::SHIPPING_METHOD_NAME') %}
+        {{ parent() }}
+    {% else %}
+        <p>
+            {% block page_checkout_finish_order_dispatch_method_paazl %}
+                <strong>{{ "checkout.finishInfoShipping"|trans|sw_sanitize }}</strong>
+                {% if page.order.deliveries.first.shippingMethod.translated.name != constant('PaazlCheckoutWidget\\PaazlCheckoutWidget::SHIPPING_METHOD_NAME') %}
+                    {{ page.order.deliveries.first.shippingMethod.translated.name }}
+                {% endif %}
+                {% if page.order.customfields.paazlTitle %}
+                    ({{ page.order.customfields.paazlData.shippingOption.name }})
+                {% endif %}
+            {% endblock %}
+        </p>
+    {% endif %}
 {% endblock %}

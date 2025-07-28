@@ -3,12 +3,16 @@ declare(strict_types=1);
 
 namespace PaazlCheckoutWidget\Core\Checkout\Cart\Delivery;
 
+use PaazlCheckoutWidget\Model\DeliveryType;
 use PaazlCheckoutWidget\Model\PaazlToken;
 use PaazlCheckoutWidget\PaazlCheckoutWidget;
+use PaazlCheckoutWidget\RestApi\PaazlApiException;
+use PaazlCheckoutWidget\RestApi\PaazlApiTokenProvider;
 use PaazlCheckoutWidget\RestApi\PaazlClient;
 use PaazlCheckoutWidget\Service\CartPaazlTokenService;
 use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Checkout\Cart\CartBehavior;
+use Shopware\Core\Checkout\Cart\CartDataCollectorInterface;
 use Shopware\Core\Checkout\Cart\CartProcessorInterface;
 use Shopware\Core\Checkout\Cart\Delivery\DeliveryBuilder;
 use Shopware\Core\Checkout\Cart\Delivery\DeliveryCalculator;
@@ -18,32 +22,47 @@ use Shopware\Core\Checkout\Cart\LineItem\LineItemCollection;
 use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
 use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTaxCollection;
 use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
-use Shopware\Core\Framework\Context;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
-class DeliveryProcessor implements CartProcessorInterface
+readonly class DeliveryProcessor implements CartDataCollectorInterface, CartProcessorInterface
 {
-    private const PICKUP = 'PICKUP_LOCATION';
-    private const DELIVERY = 'HOME';
-
-    protected DeliveryBuilder $builder;
-
-    protected DeliveryCalculator $deliveryCalculator;
-
-    private PaazlClient $paazlClient;
-
-    private CartPaazlTokenService $cartPaazlTokenService;
-
     public function __construct(
-        DeliveryBuilder $builder,
-        DeliveryCalculator $deliveryCalculator,
-        PaazlClient $paazlClient,
-        CartPaazlTokenService $cartPaazlTokenService
+        private DeliveryBuilder $builder,
+        private DeliveryCalculator $deliveryCalculator,
+        private PaazlClient $paazlClient,
+        private CartPaazlTokenService $cartPaazlTokenService,
+        private PaazlApiTokenProvider $apiTokenProvider
     ) {
-        $this->builder = $builder;
-        $this->deliveryCalculator = $deliveryCalculator;
-        $this->paazlClient = $paazlClient;
-        $this->cartPaazlTokenService = $cartPaazlTokenService;
+    }
+
+    public function collect(
+        CartDataCollection $data,
+        Cart $original,
+        SalesChannelContext $context,
+        CartBehavior $behavior
+    ): void {
+        if ($original->getDeliveries()->first()?->getShippingMethod()->getCustomFieldsValue('paazlName') !== PaazlCheckoutWidget::SHIPPING_METHOD_NAME) {
+            return;
+        }
+
+        if ($original->getLineItems()->count() === 0) {
+            return;
+        }
+
+        try {
+            $data->set('paazlToken', $this->apiTokenProvider->getApiToken(
+                $original,
+                $context
+            ));
+
+            $data->set('paazlCheckout', $this->paazlClient->getPaazlCheckoutDetails(
+                $this->cartPaazlTokenService->getReference($original->getToken(), $context->getSalesChannelId()),
+                $context->getSalesChannelId()
+            ));
+        } catch (PaazlApiException $e) {
+            $data->remove('paazlToken');
+            $data->remove('paazlCheckout');
+        }
     }
 
     public function process(
@@ -53,47 +72,51 @@ class DeliveryProcessor implements CartProcessorInterface
         SalesChannelContext $context,
         CartBehavior $behavior
     ): void {
-        if ($context->getShippingMethod()->getName() !== PaazlCheckoutWidget::SHIPPING_METHOD_NAME) {
+        $toCalculate->addState('no-paazl');
+
+        if (!$data->has('paazlCheckout')
+            || !$data->has('paazlToken')
+            || $original->getDeliveries()->first()?->getShippingMethod()->getCustomFieldsValue('paazlName') !== PaazlCheckoutWidget::SHIPPING_METHOD_NAME
+        ) {
             return;
         }
 
         $deliveries = $this->builder->build($toCalculate, $data, $context, $behavior);
         $delivery = $deliveries->first();
-
         if (!$delivery) {
             return;
         }
 
-        // Must be called BEFORE any other paazlClient calls
-        $paazlToken = $this->paazlClient->getApiToken($original, $context->getSalesChannelId(), $context->getContext(), 'front', $context);
+        /** @var array $paazlCheckout */
+        $paazlCheckout = $data->get('paazlCheckout');
 
-        $paazlCheckout = $this->paazlClient->getPaazlCheckoutDetails($original, $context);
-        $paazlTitle = null;
-        if (array_key_exists('deliveryType', $paazlCheckout)) {
-            if ($paazlCheckout['deliveryType'] === self::DELIVERY) {
-                $paazlTitle = $paazlCheckout['shippingOption']['name'];
-            } elseif ($paazlCheckout['deliveryType'] === self::PICKUP) {
-                $paazlTitle = $paazlCheckout['pickupLocation']['name'];
-            }
+        if (!array_key_exists('shippingOption', $paazlCheckout)) {
+            return;
+        }
+
+        $toCalculate->removeState('no-paazl');
+
+        $paazlTitle = $paazlCheckout['shippingOption']['name'];
+        if (DeliveryType::isPickup($paazlCheckout['deliveryType'])) {
+            $paazlTitle = $paazlCheckout['pickupLocation']['name'];
         }
 
         $paazlRate = 0;
-        if (array_key_exists('shippingOption', $paazlCheckout)) {
-            $paazlRate = $paazlCheckout['shippingOption']['rate'];
-        }
-        //check Paazl rate exist
-        $paazlDeliveryDateEarliest = $paazlDeliveryDateLatest = null;
-        if (array_key_exists('shippingOption', $paazlCheckout)) {
-            $paazlRate = $paazlCheckout['shippingOption']['rate'];
-            $shippingOption = $paazlCheckout['shippingOption'];
-            if (array_key_exists('deliveryDates', $shippingOption)
-                && !empty($shippingOption['deliveryDates'])) {
-                $paazlDeliveryDateEarliest = $shippingOption['deliveryDates'][0]['deliveryDate'];
+        $paazlDeliveryDateEarliest = null;
+        $paazlDeliveryDateLatest = null;
+
+        if ($shippingOption = ($paazlCheckout['shippingOption'] ?? null)) {
+            $paazlRate = $shippingOption['rate'];
+
+            if (!empty($shippingOption['deliveryDates'] ?? null)) {
+                $paazlDeliveryDateEarliest = reset($shippingOption['deliveryDates'])['deliveryDate'];
                 $paazlDeliveryDateLatest = end($shippingOption['deliveryDates'])['deliveryDate'];
             }
         }
 
-        //set paazl widget price
+        $reference = $this->cartPaazlTokenService->getReference($original->getToken(), $context->getSalesChannelId());
+
+        // Set paazl widget price
         $delivery->setShippingCosts(
             new CalculatedPrice(
                 $paazlRate,
@@ -103,21 +126,23 @@ class DeliveryProcessor implements CartProcessorInterface
             )
         );
 
-        //set paazl api data in customFields
+        // Set paazl api data in customFields
         $customFields = $delivery->getShippingMethod()->getCustomFields();
         $customFields['paazlTitle'] = $paazlTitle;
         $customFields['paazlData'] = $paazlCheckout;
-        $customFields['paazlOrderReference'] = $this->cartPaazlTokenService->getReference($original->getToken());
-        $customFields['paazlToken'] = $paazlToken;
+        $customFields['paazlOrderReference'] = $reference;
+        $customFields['paazlToken'] = $data->get('paazlToken');
         $customFields['paazlProducts'] = $this->getPaazlPayload($toCalculate->getLineItems(), $context);
         $customFields['paazlDeliveryDateEarliest'] = $paazlDeliveryDateEarliest;
         $customFields['paazlDeliveryDateLatest'] = $paazlDeliveryDateLatest;
 
         $delivery->getShippingMethod()->setCustomFields($customFields);
 
-        $toCalculate->addExtension('paazlToken', new PaazlToken($customFields['paazlToken']));
+        if (is_string($customFields['paazlToken'])) {
+            $toCalculate->addExtension('paazlToken', new PaazlToken($customFields['paazlToken']));
+        }
 
-        //set all things to real Cart
+        // Set all things to real Cart
         $this->deliveryCalculator->calculate($data, $toCalculate, $deliveries, $context);
         $toCalculate->setDeliveries($deliveries);
     }
@@ -125,7 +150,7 @@ class DeliveryProcessor implements CartProcessorInterface
     private function getPaazlPayload(LineItemCollection $lineItems, SalesChannelContext $context): array
     {
         $product['lineItem'] = [];
-        $product['totalWeight'] = [];
+        $product['totalWeight'] = 0.00;
 
         foreach ($lineItems as $lineItem) {
             if ($lineItem->getType() !== LineItem::PRODUCT_LINE_ITEM_TYPE) {
@@ -139,14 +164,15 @@ class DeliveryProcessor implements CartProcessorInterface
                 'quantity' => $lineItem->getQuantity(),
                 'unitPrice' => [
                     'value' => $lineItem->getPrice()->getUnitPrice(),
-                    'currency' => $context->getCurrency()->getIsoCode()
+                    'currency' => $context->getCurrency()->getIsoCode(),
                 ],
-                'description' => $lineItem->getLabel()
+                'description' => $lineItem->getLabel(),
             ];
 
             if ($lineItem->getDeliveryInformation()) {
                 if ($lineItem->getDeliveryInformation()->getWeight() > 0) {
-                    $product['totalWeight'][] = $itemData['weight'] = $lineItem->getDeliveryInformation()->getWeight();
+                    $itemData['weight'] = $lineItem->getDeliveryInformation()->getWeight();
+                    $product['totalWeight'] += (float)$lineItem->getDeliveryInformation()->getWeight();
                 }
 
                 $itemData['width'] = $lineItem->getDeliveryInformation()->getWidth();

@@ -20,17 +20,20 @@
 
                 {% block page_checkout_finish_address_shipping_data %}
                     <div class="finish-address-shipping">
-                        {% if order.customfields.paazlData.pickupLocation %}
-                        <p>
-                            {{ order.customfields.paazlData.pickupLocation.name }}<br/>
-                            {{ order.customfields.paazlData.pickupLocation.address['street'] }} {{ order.customfields.paazlData.pickupLocation.address['streetNumber'] }}<br/>
-                            {{ order.customfields.paazlData.pickupLocation.address['postalCode'] }}<br/>
-                            {{ order.customfields.paazlData.pickupLocation.address['city'] }}<br/>
-                            {{ order.customfields.paazlData.pickupLocation.address['country'] }}
-                        </p>
-                        {% else %}
-                            {% sw_include '@Storefront/storefront/component/address/address.html.twig' with {'address': shippingAddress} %}
-                        {% endif %}
+                        {% block page_checkout_finish_address_shipping_data_paazl %}
+                            {% if order.customfields.paazlData.pickupLocation %}
+                                <p>
+                                    {{ order.customfields.paazlData.pickupLocation.name }}<br/>
+                                    {{ order.customfields.paazlData.pickupLocation.address['street'] }} {{ order.customfields.paazlData.pickupLocation.address['streetNumber'] }}
+                                    <br/>
+                                    {{ order.customfields.paazlData.pickupLocation.address['postalCode'] }}<br/>
+                                    {{ order.customfields.paazlData.pickupLocation.address['city'] }}<br/>
+                                    {{ order.customfields.paazlData.pickupLocation.address['country'] }}
+                                </p>
+                            {% else %}
+                                {% sw_include '@Storefront/storefront/component/address/address.html.twig' with {'address': shippingAddress} %}
+                            {% endif %}
+                        {% endblock %}
                     </div>
                 {% endblock %}
             </div>

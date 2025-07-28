@@ -1,5 +1,11 @@
-import PaazlChangeEventPlugin from "./plugin/paazl-change-event.plugin";
+window.PluginManager.register('PaazlCheckoutPlugin', () => import('./plugin/paazl-checkout.plugin'), '[data-paazl-checkout]');
 
-const PluginManager = window.PluginManager;
-
-PluginManager.register('PaazlChangeEvent', PaazlChangeEventPlugin, '#paazl-checkout');
+// Don't refresh page for every button in Paazl widget
+const changeShippingForm = document.querySelector('#changeShippingForm');
+if (changeShippingForm) {
+    changeShippingForm.addEventListener('submit', (e) => {
+        if (e.submitter.closest('#paazl-checkout')) {
+            e.preventDefault();
+        }
+    })
+}

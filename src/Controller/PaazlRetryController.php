@@ -1,136 +1,90 @@
 <?php
-
 declare(strict_types=1);
 
 namespace PaazlCheckoutWidget\Controller;
 
-use GuzzleHttp\Exception\GuzzleException;
-use Monolog\Logger;
-use PaazlCheckoutWidget\Model\Transformer\CurrentOrderPayloadTransformer;
-use PaazlCheckoutWidget\RestApi\PaazlClient;
-use PaazlCheckoutWidget\Service\Logger\PaazlLogger;
-use PaazlCheckoutWidget\Service\PaazlConfiguration;
+use PaazlCheckoutWidget\Service\OrderExportService;
+use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
-use Shopware\Core\Framework\Routing\Annotation\RouteScope;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
+use Shopware\Core\Framework\DataAbstractionLayer\Exception\EntityNotFoundException;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
+use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
+use Shopware\Core\System\SalesChannel\Context\SalesChannelContextRestorer;
+use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
-use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Routing\Attribute\Route;
+use Symfony\Component\Routing\RouterInterface;
 
-/**
- * @RouteScope(scopes={"api"})
- */
+#[Route(defaults: ['auth_required' => true, '_routeScope' => ['api']])]
 class PaazlRetryController extends AbstractController
 {
-    private PaazlClient $paazlClient;
-
-    private PaazlLogger $paazlLogger;
-
-    private EntityRepositoryInterface $orderRepository;
-
-    private PaazlConfiguration $paazlConfiguration;
-
-    private CurrentOrderPayloadTransformer $currentOrderPayloadTransformer;
-
     public function __construct(
-        PaazlClient $paazlClient,
-        PaazlLogger $paazlLogger,
-        EntityRepositoryInterface $orderRepository,
-        PaazlConfiguration $paazlConfiguration,
-        CurrentOrderPayloadTransformer $currentOrderPayloadTransformer
+        private readonly EntityRepository $orderRepository,
+        private readonly OrderExportService $orderExportService,
+        private readonly RouterInterface $router,
+        private readonly SystemConfigService $systemConfigService,
+        private readonly SalesChannelContextRestorer $salesChannelContextRestorer
     ) {
-        $this->paazlClient = $paazlClient;
-        $this->paazlLogger = $paazlLogger;
-        $this->orderRepository = $orderRepository;
-        $this->paazlConfiguration = $paazlConfiguration;
-        $this->currentOrderPayloadTransformer = $currentOrderPayloadTransformer;
     }
 
-    /**
-     * @Route("/api/paazl/updatePaazlData", name="api.action.paazl.updatepaazldata", methods={"POST"}, defaults={"_routeScope"={"api"}})
-     */
+    #[Route(path: "/api/paazl/updatePaazlData", name: "api.action.paazl.updatepaazldata", methods: ["POST"])]
     public function updatePaazlData(
-        Request $request,
+        RequestDataBag $dataBag,
         Context $context
     ): JsonResponse {
-        try {
-            $currentOrder = json_decode(
-                $request->get('currentOrder'),
-                true,
-                512,
-                \JSON_THROW_ON_ERROR
-            );
-        } catch (\JsonException $e) {
-            return new JsonResponse([
-                'type' => 'error',
-                'message' => $e->getMessage(),
-            ]);
+        $orderId = $dataBag->get('id');
+
+        $criteria = new Criteria([$orderId]);
+        $criteria->setLimit(1);
+        $order = $this->orderRepository->search($criteria, $context)->first();
+
+        if (!$order instanceof OrderEntity) {
+            throw new EntityNotFoundException('order', $orderId);
         }
 
-        try {
-            $orderData = $this->currentOrderPayloadTransformer->transform(
-                $currentOrder,
-                $context
-            );
+        $salesChannelContext = $this->salesChannelContextRestorer->restoreByOrder($order->getId(), $context);
 
-            $response = $this->paazlClient->order(
-                $orderData,
-                $currentOrder['salesChannelId']
-            );
-        } catch (GuzzleException $e) {
-            if ($this->paazlConfiguration->debug(
-                $currentOrder['salesChannelId']
-            )
-            ) {
-                $this->paazlLogger->addEntry(
-                    'Paazl apiToken guzzleError',
-                    $context,
-                    $e,
-                    ['message' => $e->getMessage()],
-                    Logger::WARNING
-                );
+        $export = $this->orderExportService->export($order, $salesChannelContext);
+
+        return new JsonResponse($export);
+    }
+
+    #[Route(path: "/api/paazl/generateManualUrlForOrder", name: "api.action.paazl.generateManualUrlForOrder", methods: ["POST"])]
+    public function generateManualUrlForOrder(RequestDataBag $dataBag, Context $context): JsonResponse
+    {
+        $orderId = $dataBag->get('id');
+
+        $criteria = new Criteria([$orderId]);
+        $criteria->setLimit(1);
+        $criteria->addAssociation('salesChannel.domains');
+        $order = $this->orderRepository->search($criteria, $context)->first();
+
+        if (!$order instanceof OrderEntity) {
+            throw new EntityNotFoundException('order', $orderId);
+        }
+
+        $key = $this->systemConfigService->get('PaazlCheckoutWidget.config.manualOrderRetrySecretKey', $order->getSalesChannelId());
+
+        $url = $this->router->generate('frontend.paazl.retry-order-export-admin', ['id' => $order->getId(), 'key' => $key]);
+
+        $domains = $order->getSalesChannel()?->getDomains();
+        if (!$domains) {
+            throw new EntityNotFoundException('order', $orderId);
+        }
+        $languageDomain = $domains->first();
+        foreach ($domains as $domain) {
+            if ($domain->getLanguageId() === $order->getLanguageId()) {
+                $languageDomain = $domain;
             }
-
-            $this->orderRepository->upsert([
-                [
-                    'id' => $currentOrder['id'],
-                    'customFields' => ['PaazlPost' => 'Unsuccessful'],
-                ],
-            ], $context);
-
-            return new JsonResponse([
-                'type' => 'error',
-                'message' => $e->getMessage(),
-            ]);
-        }
-        if ($response->getStatusCode() !== 200) {
-            return new JsonResponse([
-                'type' => 'error',
-                'message' => 'API error',
-            ]);
         }
 
-        $date = date("Y-m-d h:i:sa");
-        $this->orderRepository->upsert([
-            [
-                'id' => $currentOrder['id'],
-                'customFields' => [
-                    'PaazlPost' => 'Successfully Updated at ' . $date,
-                ],
-            ],
-        ], $context);
-
-        if (empty($response->getBody()->getContents())) {
-            return new JsonResponse([
-                'type' => 'success',
-                'message' => 'API Data Post SuccessFully',
-            ]);
-        }
+        $url = $languageDomain->getUrl() . '/' . $url;
 
         return new JsonResponse([
-            'type' => 'success',
-            'message' => 'Success',
+            'url' => $url,
         ]);
     }
 }

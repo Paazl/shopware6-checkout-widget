@@ -1,3 +1,9 @@
-.paazl-hide-radio .custom-radio .custom-control-label::before {
+.paazl-hide-radio .form-check .form-check-input {
     display: none;
+}
+
+.shipping-method .paazl-method-class {
+    position: absolute;
+    z-index: -1;
+    opacity: 0;
 }

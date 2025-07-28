@@ -6,19 +6,16 @@ namespace PaazlCheckoutWidget\Service;
 
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 
-class PaazlConfiguration
+readonly class PaazlConfiguration
 {
-    private const PREFIX = 'PaazlCheckoutWidget.config.';
-
-    private SystemConfigService $systemConfigService;
+    public const PREFIX = 'PaazlCheckoutWidget.config.';
 
     public function __construct(
-        SystemConfigService $systemConfigService
+        private SystemConfigService $systemConfigService
     ) {
-        $this->systemConfigService = $systemConfigService;
     }
 
-    public function getMode(string $salesChannelId)
+    public function getMode(?string $salesChannelId)
     {
         return $this->systemConfigService->get(
             self::PREFIX . 'environment',
@@ -26,7 +23,7 @@ class PaazlConfiguration
         );
     }
 
-    public function debug(string $salesChannelId)
+    public function debug(?string $salesChannelId)
     {
         return $this->systemConfigService->get(
             self::PREFIX . 'debugMode',
@@ -34,7 +31,7 @@ class PaazlConfiguration
         );
     }
 
-    public function getApiKey(string $salesChannelId)
+    public function getApiKey(?string $salesChannelId)
     {
         return $this->systemConfigService->get(
             self::PREFIX . 'apiKey',
@@ -42,7 +39,24 @@ class PaazlConfiguration
         );
     }
 
-    public function getInsuranceValue(string $salesChannelId)
+    public function tokenReferenceLifetime(?string $salesChannelId): int
+    {
+        $lifetime = (int)($this->systemConfigService->get(
+            self::PREFIX . 'tokenReferenceLifetime',
+            $salesChannelId
+        ) ?? 10);
+
+        if ($lifetime < 0) {
+            $lifetime = 0;
+        }
+        if ($lifetime > 30) {
+            $lifetime = 30;
+        }
+
+        return $lifetime;
+    }
+
+    public function getInsuranceValue(?string $salesChannelId)
     {
         return $this->systemConfigService->get(
             self::PREFIX . 'insuranceValue',
@@ -50,7 +64,7 @@ class PaazlConfiguration
         );
     }
 
-    public function getSecretKey(string $salesChannelId)
+    public function getSecretKey(?string $salesChannelId)
     {
         return $this->systemConfigService->get(
             self::PREFIX . 'SecretKey',
@@ -58,7 +72,7 @@ class PaazlConfiguration
         );
     }
 
-    public function getAvailableTabs(string $salesChannelId)
+    public function getAvailableTabs(?string $salesChannelId)
     {
         return $this->systemConfigService->get(
             self::PREFIX . 'availableTabs',
@@ -66,7 +80,7 @@ class PaazlConfiguration
         );
     }
 
-    public function getWidgetSectionToggle(string $salesChannelId)
+    public function getWidgetSectionToggle(?string $salesChannelId)
     {
         return $this->systemConfigService->get(
             self::PREFIX . 'headerTabType',
@@ -74,7 +88,7 @@ class PaazlConfiguration
         );
     }
 
-    public function getDefaultTab(string $salesChannelId)
+    public function getDefaultTab(?string $salesChannelId)
     {
         return $this->systemConfigService->get(
             self::PREFIX . 'defaultTab',
@@ -82,7 +96,7 @@ class PaazlConfiguration
         );
     }
 
-    public function getWidgetTheme(string $salesChannelId)
+    public function getWidgetTheme(?string $salesChannelId)
     {
         return $this->systemConfigService->get(
             self::PREFIX . 'style',
@@ -90,7 +104,7 @@ class PaazlConfiguration
         );
     }
 
-    public function getNominatedDateEnabled(string $salesChannelId)
+    public function getNominatedDateEnabled(?string $salesChannelId)
     {
         return $this->systemConfigService->get(
             self::PREFIX . 'nominatedDateEnabled',
@@ -98,7 +112,7 @@ class PaazlConfiguration
         );
     }
 
-    public function getDefaultCountry(string $salesChannelId)
+    public function getDefaultCountry(?string $salesChannelId)
     {
         return $this->systemConfigService->get(
             self::PREFIX . 'country',
@@ -106,7 +120,7 @@ class PaazlConfiguration
         );
     }
 
-    public function getPrice(string $salesChannelId)
+    public function getPrice(?string $salesChannelId)
     {
         return $this->systemConfigService->get(
             self::PREFIX . 'Price',
@@ -114,7 +128,7 @@ class PaazlConfiguration
         );
     }
 
-    public function getDefaultPostcode(string $salesChannelId)
+    public function getDefaultPostcode(?string $salesChannelId)
     {
         return $this->systemConfigService->get(
             self::PREFIX . 'postalCode',
@@ -122,7 +136,7 @@ class PaazlConfiguration
         );
     }
 
-    public function getShippingOptionsLimit(string $salesChannelId)
+    public function getShippingOptionsLimit(?string $salesChannelId)
     {
         return $this->systemConfigService->get(
             self::PREFIX . 'shippingOptionsLimit',
@@ -130,7 +144,7 @@ class PaazlConfiguration
         );
     }
 
-    public function getPickupLocationsPageLimit(string $salesChannelId)
+    public function getPickupLocationsPageLimit(?string $salesChannelId)
     {
         return $this->systemConfigService->get(
             self::PREFIX . 'pickupLocationsPageLimit',
@@ -138,7 +152,7 @@ class PaazlConfiguration
         );
     }
 
-    public function getPickupLocationsLimit(string $salesChannelId)
+    public function getPickupLocationsLimit(?string $salesChannelId)
     {
         return $this->systemConfigService->get(
             self::PREFIX . 'pickupLocationsLimit',
@@ -146,7 +160,7 @@ class PaazlConfiguration
         );
     }
 
-    public function getInitialPickupLocations(string $salesChannelId)
+    public function getInitialPickupLocations(?string $salesChannelId)
     {
         return $this->systemConfigService->get(
             self::PREFIX . 'initialPickupLocations',
@@ -154,7 +168,7 @@ class PaazlConfiguration
         );
     }
 
-    public function getFreeShipping(string $salesChannelId)
+    public function getFreeShipping(?string $salesChannelId)
     {
         return $this->systemConfigService->get(
             self::PREFIX . 'freeShipping',
@@ -162,7 +176,7 @@ class PaazlConfiguration
         );
     }
 
-    public function getStartMatrix(string $salesChannelId)
+    public function getStartMatrix(?string $salesChannelId)
     {
         return $this->systemConfigService->get(
             self::PREFIX . 'startMatrix',
@@ -170,7 +184,7 @@ class PaazlConfiguration
         );
     }
 
-    public function getHouseNumberDefaultOption(string $salesChannelId): int
+    public function getHouseNumberDefaultOption(?string $salesChannelId): int
     {
         return $this->systemConfigService->getInt(
             self::PREFIX . 'housenumberDefaultValue',
@@ -178,7 +192,7 @@ class PaazlConfiguration
         );
     }
 
-    public function getNumberOfDays(string $salesChannelId)
+    public function getNumberOfDays(?string $salesChannelId)
     {
         return $this->systemConfigService->get(
             self::PREFIX . 'numberOfDays',
@@ -186,7 +200,7 @@ class PaazlConfiguration
         );
     }
 
-    public function getIsPricingEnabled(string $salesChannelId)
+    public function getIsPricingEnabled(?string $salesChannelId)
     {
         return $this->systemConfigService->get(
             self::PREFIX . 'isPricingEnabled',
@@ -194,7 +208,7 @@ class PaazlConfiguration
         );
     }
 
-    public function getIsShowAsExtraCost(string $salesChannelId)
+    public function getIsShowAsExtraCost(?string $salesChannelId)
     {
         return $this->systemConfigService->get(
             self::PREFIX . 'isShowAsExtraCost',
@@ -202,7 +216,7 @@ class PaazlConfiguration
         );
     }
 
-    public function getDeliveryRangeFormat(string $salesChannelId)
+    public function getDeliveryRangeFormat(?string $salesChannelId)
     {
         return $this->systemConfigService->get(
             self::PREFIX . 'deliveryRangeFormat',
@@ -210,7 +224,7 @@ class PaazlConfiguration
         );
     }
 
-    public function getOrderBy(string $salesChannelId)
+    public function getOrderBy(?string $salesChannelId)
     {
         return $this->systemConfigService->get(
             self::PREFIX . 'orderBy',
@@ -218,7 +232,7 @@ class PaazlConfiguration
         );
     }
 
-    public function getSortOrder(string $salesChannelId)
+    public function getSortOrder(?string $salesChannelId)
     {
         return $this->systemConfigService->get(
             self::PREFIX . 'sortOrder',
@@ -227,7 +241,7 @@ class PaazlConfiguration
     }
 
 
-    public function getDeliveryOptionDateFormat(string $salesChannelId)
+    public function getDeliveryOptionDateFormat(?string $salesChannelId)
     {
         return $this->systemConfigService->get(
             self::PREFIX . 'deliveryOptionDateFormat',
@@ -235,7 +249,7 @@ class PaazlConfiguration
         );
     }
 
-    public function getDeliveryEstimateDateFormat(string $salesChannelId)
+    public function getDeliveryEstimateDateFormat(?string $salesChannelId)
     {
         return $this->systemConfigService->get(
             self::PREFIX . 'deliveryEstimateDateFormat',
@@ -243,7 +257,7 @@ class PaazlConfiguration
         );
     }
 
-    public function getPickupOptionDateFormat(string $salesChannelId)
+    public function getPickupOptionDateFormat(?string $salesChannelId)
     {
         return $this->systemConfigService->get(
             self::PREFIX . 'pickupOptionDateFormat',
@@ -251,10 +265,42 @@ class PaazlConfiguration
         );
     }
 
-    public function getPickupEstimateDateFormat(string $salesChannelId)
+    public function getPickupEstimateDateFormat(?string $salesChannelId)
     {
         return $this->systemConfigService->get(
             self::PREFIX . 'pickupEstimateDateFormat',
+            $salesChannelId
+        );
+    }
+
+    public function getReferencePrefix(?string $salesChannelId)
+    {
+        return $this->systemConfigService->get(
+            self::PREFIX . 'referencePrefix',
+            $salesChannelId
+        );
+    }
+
+    public function getOrderExport(?string $salesChannelId)
+    {
+        return $this->systemConfigService->get(
+            self::PREFIX . 'orderExport',
+            $salesChannelId
+        );
+    }
+
+    public function getHouseNumberFirstStreet(?string $salesChannelId): ?string
+    {
+        return $this->systemConfigService->get(
+            self::PREFIX . 'houseNumberFirstStreet',
+            $salesChannelId
+        );
+    }
+
+    public function getHouseNumberSecondStreet(?string $salesChannelId): ?string
+    {
+        return $this->systemConfigService->get(
+            self::PREFIX . 'houseNumberSecondStreet',
             $salesChannelId
         );
     }

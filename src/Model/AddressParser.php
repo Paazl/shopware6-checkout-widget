@@ -6,38 +6,32 @@ namespace PaazlCheckoutWidget\Model;
 
 use PaazlCheckoutWidget\Service\PaazlConfiguration;
 
-class AddressParser
+readonly class AddressParser
 {
-    private PaazlConfiguration $paazlConfiguration;
-
     public function __construct(
-        PaazlConfiguration $paazlConfiguration
+        private PaazlConfiguration $paazlConfiguration
     ) {
-        $this->paazlConfiguration = $paazlConfiguration;
     }
 
     public function parseAddress(string $street, string $salesChannelId): array
     {
-
         $street = trim(str_replace("\t", ' ', $street));
-        $houseExtensionPattern
-            = '(?<houseNumber>\d{1,5})[[:punct:]\-\/\s]*(?<houseNumberExtension>[^[:space:]]{1,2})?';
+        $houseExtensionPattern = '(?<houseNumber>\d{1,5})[[:punct:]\-\/\s]*(?<houseNumberExtension>[^[:space:]]{1,2})?';
         $streetPattern = '(?<street>.+)';
 
         $patterns = [
             "/^{$streetPattern}[\s[:space:]]+{$houseExtensionPattern}$/",
             "/^{$houseExtensionPattern}[\s[:space:]]+{$streetPattern}$/",
         ];
+
         foreach ($patterns as $pattern) {
             if (!preg_match($pattern, $street, $matches)) {
                 continue;
             }
-
             return [
                 'street' => $matches['street'] ?? null,
                 'houseNumber' => $matches['houseNumber'] ?? null,
-                'houseNumberExtension' => $matches['houseNumberExtension'] ??
-                        null,
+                'houseNumberExtension' => $matches['houseNumberExtension'] ?? null,
             ];
         }
 

@@ -41,6 +41,21 @@
             <helpText>Choose whether you want to use the Paazl Checkout Widget in Paazl's staging or production environment.</helpText>
         </input-field>
 
+        <input-field type="single-select">
+            <name>apiVersion</name>
+            <label>API Version</label>
+            <options>
+                <option>
+                    <id>stable</id><name>Stable</name>
+                </option>
+                <option>
+                    <id>latest</id><name>Latest</name>
+                </option>
+            </options>
+            <defaultValue>stable</defaultValue>
+            <helpText>Select the Paazl Widget version to use: Stable or Latest.</helpText>
+        </input-field>
+
         <component name="paazl-checkout-test-button">
             <name>paazlCheckoutTestButton</name>
             <label>Check Credentials</label>
@@ -87,15 +102,23 @@
         <input-field type="multi-select">
             <name>availableTabs</name>
             <label>Available Tabs</label>
+            <defaultValue>["DELIVERY","STORE","PICKUP","PARCEL_LOCKER"]</defaultValue>
             <options>
                 <option>
-                    <id>DELIVERY</id><name>Delivery</name>
+                    <id>DELIVERY</id>
+                    <name>Delivery</name>
                 </option>
                 <option>
-                    <id>STORE</id><name>Store</name>
+                    <id>STORE</id>
+                    <name>Store</name>
                 </option>
                 <option>
-                    <id>PICKUP</id><name>Pickup</name>
+                    <id>PICKUP</id>
+                    <name>Pickup</name>
+                </option>
+                <option>
+                    <id>PARCEL_LOCKER</id>
+                    <name>Parcel Locker</name>
                 </option>
             </options>
             <helpText>Select the widget tabs that you want to display.</helpText>
@@ -115,8 +138,26 @@
                 <option>
                     <id>PICKUP</id><name>Pickup</name>
                 </option>
+                <option>
+                    <id>PARCEL_LOCKER</id><name>Parcel Locker</name>
+                </option>
+
             </options>
             <helpText>Select sections toggle appearance for the Paazl widget.</helpText>
+        </input-field>
+
+        <input-field type="single-select">
+            <name>useLocalWidget</name>
+            <label>Use Local Widget Js</label>
+            <defaultValue>false</defaultValue>
+            <options>
+                <option>
+                    <id>true</id><name>Yes</name>
+                </option>
+                <option>
+                    <id>false</id><name>No</name>
+                </option>
+            </options>
         </input-field>
 
         <input-field type="single-select">
@@ -149,31 +190,32 @@
             <helpText>If enabled, shipping options will be displayed grouped by date. If disabled, the list will be displayed in ascending order.</helpText>
         </input-field>
 
-        <input-field>
+        <input-field type="int">
             <name>shippingOptionsLimit</name>
             <label>Max # Delivery Tab Shipping Options</label>
             <defaultValue>10</defaultValue>
             <helpText>Limits the number of shipping options displayed on the widget's "delivery" tabs.</helpText>
         </input-field>
-        <input-field>
+
+        <input-field type="int">
             <name>pickupLocationsPageLimit</name>
             <label>Max # Pickup Tab Shipping Options</label>
             <defaultValue>10</defaultValue>
             <helpText>Limits the number of pickup locations displayed on the widget's "pickup" and "store" tabs.</helpText>
         </input-field>
-        <input-field>
+        <input-field type="int">
             <name>initialPickupLocations</name>
             <label>Max # Max Locations Initially Displayed</label>
             <defaultValue>3</defaultValue>
             <helpText>Limits the number of pickup locations initially displayed on the widget's "pickup" and "store" maps.</helpText>
         </input-field>
-        <input-field>
+        <input-field type="int">
             <name>pickupLocationsLimit</name>
             <label>Max # Max Locations Displayed</label>
             <defaultValue>20</defaultValue>
             <helpText>Limits the maximum number of pickup locations displayed on the widget's pickup location maps.</helpText>
         </input-field>
-        <input-field>
+        <input-field type="int">
             <name>numberOfDays</name>
             <label>deliveryDateOptions (NumberOfDays)</label>
             <defaultValue>7</defaultValue>
@@ -322,22 +364,15 @@
             </options>
             <helpText>Choose whether you want to display shipping options from sources other than Paazl.</helpText>
         </input-field>
+
+        <input-field type="textarea">
+            <name>customCss</name>
+            <label>Custom CSS</label>
+        </input-field>
     </card>
 
     <card>
         <title>Defaults</title>
-
-        <input-field>
-            <name>shippingTitle</name>
-            <label>Default Method Title</label>
-            <defaultValue>Standard</defaultValue>
-        </input-field>
-
-        <input-field>
-            <name>shippingName</name>
-            <label>Default Method Name</label>
-            <defaultValue>Paazl</defaultValue>
-        </input-field>
 
         <input-field type="single-select">
             <name>showOnFirstLoad</name>
@@ -352,25 +387,6 @@
                 </option>
             </options>
             <helpText>Set to Yes if you want to load the Widget on the first checkout load before the client details are filled in. The default values below would be used on this first load and can be set on store-level.</helpText>
-        </input-field>
-
-        <component name="sw-entity-single-select">
-            <name>country</name>
-            <entity>country</entity>
-            <label>Default Country</label>
-        </component>
-
-        <input-field>
-            <name>postalCode</name>
-            <label>Default Postal Code</label>
-            <defaultValue>1018LL</defaultValue>
-            <helpText>The checkout widget will display the pickup locations nearest to this postal code.</helpText>
-        </input-field>
-
-        <input-field type="textarea">
-            <name>infoText</name>
-            <label>Infotext</label>
-            <helpText>Use this to show some info on checkout shipping method.</helpText>
         </input-field>
 
         <input-field type="single-select">
@@ -388,15 +404,52 @@
         </input-field>
 
         <input-field type="single-select">
-            <name>paidOrder</name>
-            <label>Sent only paid orders to paazl</label>
-            <defaultValue>no</defaultValue>
+            <name>houseNumberFirstStreet</name>
+            <label>Select address line for house number</label>
+            <defaultValue>default</defaultValue>
             <options>
                 <option>
-                    <id>yes</id><name>Yes</name>
+                    <id>houseNumberFirstStreetAdd1</id><name>Additional address line 1</name>
                 </option>
                 <option>
-                    <id>no</id><name>No</name>
+                    <id>houseNumberFirstStreetAdd2</id><name>Additional address line 2</name>
+                </option>
+                <option>
+                    <id>default</id><name>Default</name>
+                </option>
+            </options>
+        </input-field>
+
+        <input-field type="single-select">
+            <name>houseNumberSecondStreet</name>
+            <label>Select address line for house number extension</label>
+            <defaultValue>default</defaultValue>
+            <options>
+                <option>
+                    <id>houseNumberSecondStreetAdd1</id><name>Additional address line 1</name>
+                </option>
+                <option>
+                    <id>houseNumberSecondStreetAdd2</id><name>Additional address line 2</name>
+                </option>
+                <option>
+                    <id>default</id><name>Default</name>
+                </option>
+            </options>
+        </input-field>
+
+        <input-field type="single-select">
+            <name>orderExport</name>
+            <label>When to export order to Paazl?</label>
+            <defaultValue>placed</defaultValue>
+            <options>
+                <option>
+                    <id>placed</id><name>Order placed</name>
+                </option>
+                <option>
+                    <id>paid</id><name>Order paid</name>
+                </option>
+                <option>
+                    <id>never</id><name>Disable automatic order export</name>
                 </option>
             </options>
         </input-field>
@@ -404,7 +457,6 @@
 
     <card>
         <title>Paazl Info In Email Template</title>
-
         <component name="custom-info-test">
             <name>infoText</name>
         </component>
@@ -415,7 +467,7 @@
         <input-field type="single-select">
             <name>Price</name>
             <label>Select Price which will be used for total Price </label>
-            <defaultValue>yes</defaultValue>
+            <defaultValue>TotalInclTax</defaultValue>
             <options>
                 <option>
                     <id>TotalInclTax</id><name>Total incl Tax</name>
@@ -465,9 +517,11 @@
             <helpText>Fill in the insurance amount as a number.</helpText>
         </input-field>
 
-        <input-field type="textarea">
-            <name>customCss</name>
-            <label>Custom CSS</label>
+        <input-field type="int">
+            <name>tokenReferenceLifetime</name>
+            <label>Lifetime of token reference in days</label>
+            <defaultValue>10</defaultValue>
+            <helpText>Less than 30 days.</helpText>
         </input-field>
 
         <input-field type="bool">
@@ -476,6 +530,30 @@
             <label lang="de-DE">Aktiviert den Debug-Modus</label>
             <helpText>Logs all requests and responses to the plugin log.</helpText>
             <helpText lang="de-DE">Protokolliert alle Anfragen und Antworten auf das Plugin-Log.</helpText>
+        </input-field>
+
+        <input-field type="bool">
+            <name>performWidgetCheck</name>
+            <label>Activate "Widget check"</label>
+            <label lang="de-DE">Aktiviert "Widget check"</label>
+            <helpText>Automatically reloads checkout page if Paazl Widget failed to load.</helpText>
+            <helpText lang="de-DE">Lädt automatisch die Checkout-Seite neu, wenn das Paazl Widget nicht geladen werden konnte.</helpText>
+        </input-field>
+    </card>
+
+    <card>
+        <title>Advanced Settings: Manual Order Retry</title>
+
+        <input-field type="bool">
+            <name>enableManualOrderRetry</name>
+            <label>Enable Manual Order Retry functionality</label>
+            <helpText>https://your-saleschannel-domain.com/paazl/retry-order-export-admin?key={key}&amp;id={orderId}</helpText>
+        </input-field>
+
+        <input-field>
+            <name>manualOrderRetrySecretKey</name>
+            <label>Secret Key</label>
+            <helpText>This secret key is a secret key that enables the Manual Order Retry functionality. This key should be kept secret and should be handled like a password. Rotate the key regularly. If the key is empty, the Manual Order Retry functionality will not work.</helpText>
         </input-field>
     </card>
 

@@ -34,21 +34,25 @@ Component.register('paazl-checkout-test-button', {
         check() {
             this.isLoading = true;
 
-            this.PaazlCheckoutApiCredentialsService.validateSandboxApi().then(response => {
-                if (response.type === 'error') {
-                    // show error
-                    this.createNotificationError({
-                        title: this.$tc('paazl-checkout.general.api.messages.error.title'),
-                        message: response.message
-                    });
-                } else {
-                    // show success
-                    this.createNotificationSuccess({
-                        title: this.$tc('paazl-checkout.general.api.messages.success.title'),
-                        message: this.$tc('paazl-checkout.general.api.messages.success.message')
-                    });
-                }
+            const apiKeyInput = document.querySelector('input[name="PaazlCheckoutWidget.config.apiKey"]');
+            const secretKeyInput = document.querySelector('input[name="PaazlCheckoutWidget.config.SecretKey"]');
 
+            const apiKey = (apiKeyInput) ? apiKeyInput.value : null;
+            const secretKey = (secretKeyInput) ? secretKeyInput.value : null;
+
+            this.PaazlCheckoutApiCredentialsService.validateSandboxApi(apiKey, secretKey).then(response => {
+                // show success
+                this.createNotificationSuccess({
+                    title: this.$tc('paazl-checkout.general.api.messages.success.title'),
+                    message: this.$tc('paazl-checkout.general.api.messages.success.message')
+                });
+            }).catch(() => {
+                // show error
+                this.createNotificationError({
+                    title: this.$tc('paazl-checkout.general.api.messages.error.title'),
+                    message: this.$tc('paazl-checkout.general.api.messages.error.message')
+                });
+            }).finally(() => {
                 this.isLoading = false;
             });
         }

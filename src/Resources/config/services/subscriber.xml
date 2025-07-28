@@ -7,18 +7,42 @@
     <services>
         <service id="PaazlCheckoutWidget\Subscriber\PaazlCheckoutSubscriber">
             <tag name="kernel.event_subscriber"/>
-            <argument type="service" id="PaazlCheckoutWidget\RestApi\PaazlClient" />
-            <argument type="service" id="country.repository"/>
-            <argument type="service" id="PaazlCheckoutWidget\Service\CartPaazlTokenService"/>
-            <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService"/>
+            <argument type="service" id="PaazlCheckoutWidget\RestApi\PaazlApiTokenProvider"/>
+            <argument type="service" id="PaazlCheckoutWidget\Service\GeneratePaazlScript"/>
+            <argument type="service" id="monolog.logger.paazl" />
         </service>
 
-        <service id="PaazlCheckoutWidget\Core\Subscriber\PaidOrderSubscriber">
+        <service id="PaazlCheckoutWidget\Subscriber\PaidOrderSubscriber">
             <tag name="kernel.event_subscriber"/>
-            <argument type="service" id="PaazlCheckoutWidget\RestApi\PaazlClient" />
             <argument type="service" id="order_transaction.repository"/>
+            <argument type="service" id="PaazlCheckoutWidget\Service\PaazlConfiguration"/>
+            <argument type="service" id="PaazlCheckoutWidget\Service\OrderExportService"/>
+            <argument type="service" id="Shopware\Core\System\SalesChannel\Context\SalesChannelContextRestorer"/>
+        </service>
+
+        <service id="PaazlCheckoutWidget\Subscriber\CartConvertSubscriber">
+            <tag name="kernel.event_subscriber"/>
+            <argument type="service" id="country.repository"/>
+            <argument type="service" id="PaazlCheckoutWidget\Service\PaazlConfiguration"/>
+        </service>
+
+        <service id="PaazlCheckoutWidget\Subscriber\OrderPlacedSubscriber">
+            <tag name="kernel.event_subscriber"/>
+            <argument type="service" id="PaazlCheckoutWidget\Service\PaazlConfiguration"/>
+            <argument type="service" id="PaazlCheckoutWidget\Service\OrderExportService"/>
+        </service>
+
+        <service id="PaazlCheckoutWidget\Subscriber\MailBeforeValidateSubscriber">
+            <tag name="kernel.event_subscriber"/>
+        </service>
+
+        <service id="PaazlCheckoutWidget\Subscriber\CustomerLogoutSubscriber">
+            <tag name="kernel.event_subscriber"/>
             <argument type="service" id="PaazlCheckoutWidget\Service\CartPaazlTokenService"/>
-            <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService"/>
+        </service>
+
+        <service id="PaazlCheckoutWidget\Subscriber\ShippingMethodLoadedSubscriber">
+            <tag name="kernel.event_subscriber"/>
         </service>
     </services>
 </container>

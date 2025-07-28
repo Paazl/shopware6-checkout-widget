@@ -6,30 +6,25 @@
 
     <services>
         <service id="PaazlCheckoutWidget\RestApi\PaazlClient" lazy="true">
-            <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService"/>
-            <argument type="service" id="session"/>
-            <argument type="service" id="language.repository"/>
-            <argument type="service" id="Shopware\Core\Checkout\Cart\SalesChannel\CartService"/>
-            <argument type="service" id="country.repository"/>
-            <argument type="service" id="order.repository"/>
-            <argument type="service" id="Shopware\Core\Checkout\Cart\Delivery\DeliveryBuilder"/>
-            <argument type="service" id="Shopware\Core\Checkout\Cart\Delivery\DeliveryCalculator"/>
             <argument type="service" id="PaazlCheckoutWidget\Service\Logger\PaazlLogger"/>
             <argument type="service" id="PaazlCheckoutWidget\Service\PaazlConfiguration"/>
-            <argument type="service" id="PaazlCheckoutWidget\Model\AddressParser"/>
-            <argument type="service" id="Shopware\Core\Checkout\Cart\CartPersister"/>
-            <argument type="service" id="PaazlCheckoutWidget\Service\CartPaazlTokenService"/>
-            <argument type="service" id="PaazlCheckoutWidget\Components\Logger" />
+            <argument type="service" id="PaazlCheckoutWidget\RestApi\UrlProvider"/>
         </service>
 
-        <!--Log Entry-->
+        <service id="PaazlCheckoutWidget\RestApi\UrlProvider">
+            <argument type="service" id="PaazlCheckoutWidget\Service\PaazlConfiguration"/>
+        </service>
+
+        <service id="PaazlCheckoutWidget\RestApi\PaazlApiTokenProvider">
+            <argument type="service" id="PaazlCheckoutWidget\Service\CartPaazlTokenService"/>
+            <argument type="service" id="PaazlCheckoutWidget\RestApi\PaazlClient"/>
+            <argument type="service" id="Shopware\Core\Checkout\Cart\CartPersister"/>
+        </service>
+
+        <!-- Log Entry -->
         <service id="PaazlCheckoutWidget\Service\Logger\PaazlLogger">
             <argument type="service" id="log_entry.repository"/>
+            <argument type="service" id="monolog.logger.paazl"/>
         </service>
-        <service id="PaazlCheckoutWidget\Components\Logger" class="Monolog\Logger">
-            <factory service="Shopware\Core\Framework\Log\LoggerFactory" method="createRotating"/>
-            <argument type="string">Paazl</argument>
-        </service>
-        
     </services>
 </container>

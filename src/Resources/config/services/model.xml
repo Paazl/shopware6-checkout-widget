@@ -9,10 +9,12 @@
             <argument type="service" id="PaazlCheckoutWidget\Service\PaazlConfiguration"/>
         </service>
 
-        <service id="PaazlCheckoutWidget\Model\Transformer\CurrentOrderPayloadTransformer">
+        <service id="PaazlCheckoutWidget\Model\Transformer\PaazlOrderTransformer">
+            <argument type="service" id="order.repository"/>
+            <argument type="service" id="PaazlCheckoutWidget\Model\AddressParser"/>
             <argument type="service" id="PaazlCheckoutWidget\Service\PaazlConfiguration"/>
             <argument type="service" id="PaazlCheckoutWidget\Service\Logger\PaazlLogger"/>
-            <argument type="service" id="PaazlCheckoutWidget\Model\AddressParser"/>
+            <argument type="service" id="PaazlCheckoutWidget\Service\GeneratePaazlScript"/>
         </service>
     </services>
 </container>

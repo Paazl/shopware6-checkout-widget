@@ -9,9 +9,5 @@
             <argument type="service" id="log_entry.repository"/>
             <argument type="service" id="monolog.logger.paazl"/>
         </service>
-        <service id="monolog.logger.paazl" class="Monolog\Logger">
-            <factory service="Shopware\Core\Framework\Log\LoggerFactory" method="createRotating"/>
-            <argument type="string">Paazl</argument>
-        </service>
     </services>
 </container>

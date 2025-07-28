@@ -1,116 +1,113 @@
 <?php
+declare(strict_types=1);
 
 namespace PaazlCheckoutWidget\Service\Utility;
 
 use PaazlCheckoutWidget\PaazlCheckoutWidget;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Uuid\Uuid;
 
-class ShippingMethodHandler
+readonly class ShippingMethodHandler
 {
-    private EntityRepositoryInterface $shippingMethodRepository;
-
-    private EntityRepositoryInterface $rulesRepository;
-
-    private EntityRepositoryInterface $deliveryTimeRepository;
-
     public function __construct(
-        EntityRepositoryInterface $shippingMethodRepository,
-        EntityRepositoryInterface $rulesRepository,
-        EntityRepositoryInterface $deliveryTimeRepository
+        private EntityRepository $shippingMethodRepository,
+        private EntityRepository $deliveryTimeRepository,
+        private EntityRepository $ruleRepository
     ) {
-        $this->shippingMethodRepository = $shippingMethodRepository;
-        $this->rulesRepository = $rulesRepository;
-        $this->deliveryTimeRepository = $deliveryTimeRepository;
     }
 
-    public function addShippingMethod(Context $context): void
+    public function createShippingMethod(Context $context): void
     {
         $this->shippingMethodRepository->upsert([
-            $this->createDataPayload($context)
+            $this->createDataPayload($context),
         ], $context);
     }
 
-    private function addRule(Context $context): string
+    public function updateShippingMethod($active, $context): void
     {
-        $ruleIdInsert = Uuid::randomHex();
-        $data = [
-            'id' => $ruleIdInsert,
-            'name' => 'All customers',
-            'priority' => 1,
-            'invalid' => false
-        ];
-        $this->rulesRepository->upsert([$data], $context);
-        return $ruleIdInsert;
-    }
+        $id = $this->getExistingShippingMethodId($context);
 
-    private function addDeliveryTime(Context $context): string
-    {
-        $deliveryIdInsert = Uuid::randomHex();
+        if (!$id) {
+            return;
+        }
 
-        $this->deliveryTimeRepository->upsert([
+        $this->shippingMethodRepository->update([
             [
-                'id' => $deliveryIdInsert,
-                'name' => 'All customers',
-                'min' => 2,
-                'max' => 5,
-                'unit' => 'day'
-            ]
+                'id' => $id,
+                'active' => $active,
+            ],
         ], $context);
-
-        return $deliveryIdInsert;
     }
 
-    public function createDataPayload($context): array
+    public function deleteShippingMethod($context): void
     {
-        $ruleId = $this->rulesRepository->searchIds(
-            (new Criteria())->addFilter(new EqualsFilter('name', 'All customers')),
-            $context
-        )->firstId();
+        $id = $this->getExistingShippingMethodId($context);
+        if (!$id) {
+            return;
+        }
 
-        if (!$ruleId) {
-            $ruleId = $this->rulesRepository->searchIds(
+        $this->shippingMethodRepository->delete([
+            [
+                'id' => $id,
+            ],
+        ], $context);
+    }
+
+    private function createDataPayload(Context $context): array
+    {
+        $id = $this->getExistingShippingMethodId($context);
+
+        $data = [
+            'id' => $id,
+            'translations' => [
+                'en-GB' => [
+                    'customFields' => [
+                        'paazlName' => PaazlCheckoutWidget::SHIPPING_METHOD_NAME,
+                    ],
+                ],
+                'nl-NL' => [
+                    'customFields' => [
+                        'paazlName' => PaazlCheckoutWidget::SHIPPING_METHOD_NAME,
+                    ],
+                ],
+                'de-DE' => [
+                    'customFields' => [
+                        'paazlName' => PaazlCheckoutWidget::SHIPPING_METHOD_NAME,
+                    ],
+                ],
+            ],
+            'technicalName' => PaazlCheckoutWidget::SHIPPING_METHOD_NAME,
+        ];
+
+        if (!$id) {
+            $deliveryTimeEntityId = $this->deliveryTimeRepository->searchIds(
                 (new Criteria())->setLimit(1),
                 $context
             )->firstId();
-        }
 
-        if ($ruleId === null) {
-            $ruleId = $this->addRule($context);
-        }
+            if ($deliveryTimeEntityId === null) {
+                $deliveryTimeEntityId = $this->addDeliveryTime($context);
+            }
 
-        $deliveryTimeEntityId = $this->deliveryTimeRepository->searchIds(
-            (new Criteria())->setLimit(1),
-            $context
-        )->firstId();
+            $availabilityId = $this->ruleRepository->searchIds(
+                (new Criteria())->setLimit(1),
+                $context
+            )->firstId();
 
-        if ($deliveryTimeEntityId === null) {
-            $deliveryTimeEntityId = $this->addDeliveryTime($context);
-        }
+            if ($availabilityId === null) {
+                $availabilityId = $this->addAvailability($context);
+            }
 
-        $id = $this->getExistingShippingMethodId($context);
-
-        return [
-            'id' => $id ?? Uuid::randomHex(),
-            'translations' => [
-                'en-GB' => [
-                    'name' => PaazlCheckoutWidget::SHIPPING_METHOD_NAME
-                ],
-                'nl-NL' => [
-                    'name' => PaazlCheckoutWidget::SHIPPING_METHOD_NAME
-                ],
-                'de-DE' => [
-                    'name' => PaazlCheckoutWidget::SHIPPING_METHOD_NAME
-                ]
-            ],
-            'active' => false,
-            'availabilityRuleId' => $ruleId,
-            'deliveryTimeId' => $deliveryTimeEntityId,
-            'prices' => [
+            $data['id'] = Uuid::randomHex();
+            $data['active'] = false;
+            $data['name'] = PaazlCheckoutWidget::SHIPPING_METHOD_NAME;
+            $data['deliveryTimeId'] = $deliveryTimeEntityId;
+            $data['availabilityRuleId'] = $availabilityId;
+            $data['prices'] = [
                 [
                     'price' => 0,
                     'currencyId' => Defaults::CURRENCY,
@@ -125,36 +122,68 @@ class ShippingMethodHandler
                         ],
                     ],
                 ],
+            ];
+        }
+
+        return $data;
+    }
+
+    private function addDeliveryTime(Context $context): string
+    {
+        $deliveryTimeId = Uuid::randomHex();
+
+        $this->deliveryTimeRepository->upsert([
+            [
+                'id' => $deliveryTimeId,
+                'name' => '2 to 5 days',
+                'min' => 2,
+                'max' => 5,
+                'unit' => 'day',
             ],
-        ];
+        ], $context);
+
+        return $deliveryTimeId;
+    }
+
+    private function addAvailability(Context $context)
+    {
+        $availabilityId = Uuid::randomHex();
+
+        $this->ruleRepository->upsert([
+            [
+                'id' => $availabilityId,
+                'name' => 'All customers',
+                'priority' => 1,
+                'invalid' => 0,
+                'conditions' => [
+                    [
+                        'type' => 'customerCustomerGroup',
+                        'value' => json_encode([
+                            'operator' => '=',
+                            'customerGroupIds' => ['cfbd5018d38d41d8adca10d94fc8bdd6'],
+                        ]),
+                    ],
+                ],
+            ],
+        ], $context);
+
+        return $availabilityId;
     }
 
     private function getExistingShippingMethodId($context): ?string
     {
         $criteria = (new Criteria())
-            ->addFilter(new EqualsFilter('name', PaazlCheckoutWidget::SHIPPING_METHOD_NAME));
+            ->addFilter(new EqualsFilter('customFields.paazlName', PaazlCheckoutWidget::SHIPPING_METHOD_NAME));
 
-        return $this->shippingMethodRepository->searchIds($criteria, $context)->firstId();
-    }
+        $id = $this->shippingMethodRepository->searchIds($criteria, $context)->firstId();
 
-    public function updateShippingMethod($active, $context): void
-    {
-        $id = $this->getExistingShippingMethodId($context);
+        if (!$id) {
+            $criteria = (new Criteria())
+                ->addFilter(new EqualsFilter('name', PaazlCheckoutWidget::SHIPPING_METHOD_NAME));
 
-        $this->shippingMethodRepository->upsert([
-            [
-                'id' => $id,
-                'active' => $active,
-            ]
-        ], $context);
-    }
+            $id = $this->shippingMethodRepository->searchIds($criteria, $context)->firstId();
+        }
 
-    public function deleteShippingMethod($context): void
-    {
-        $this->shippingMethodRepository->delete([
-            [
-                'id' => $this->getExistingShippingMethodId($context)
-            ]
-        ], $context);
+        return $id;
     }
 }
